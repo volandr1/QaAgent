@@ -71,15 +71,55 @@ switch (command)
     case "seed":
         await RunSeedAsync();
         break;
+    case "monitor":
+    {
+        var interval = args.Length > 2 && int.TryParse(args[2], out var s) ? Math.Max(15, s) : 60;
+        await RunMonitorAsync(interval);
+        break;
+    }
 
     default:
         Console.WriteLine($"Невідома команда: {command}");
-        Console.WriteLine("Доступні: smoke | analyze | probe | generate | run | heal | agent | seed [target|url]");
+        Console.WriteLine("Доступні: smoke | analyze | probe | generate | run | heal | agent | seed | monitor [target|url] [interval]");
         Console.WriteLine($"Таргети: {string.Join(", ", TargetConfig.BuiltIn.Select(t => t.Name))} — або будь-який Swagger URL");
         break;
 }
 
 // ---------------------------------------------------------------------------
+
+async Task RunMonitorAsync(int intervalSec)
+{
+    Console.WriteLine($"=== Моніторинг {target.Name} кожні {intervalSec}с (Ctrl+C — зупинка) ===\n");
+    while (true)
+    {
+        var stamp = DateTime.Now.ToString("HH:mm:ss");
+        try
+        {
+            var current = await agent.LoadCurrentAsync();
+            var snapshot = await agent.LoadSnapshotAsync();
+            if (snapshot is null)
+            {
+                Console.WriteLine($"[{stamp}] baseline — знімка немає, тестую…");
+                await agent.FullCycleAsync(Log);
+            }
+            else if (snapshot.Hash != current.Hash)
+            {
+                var diff = DiffEngine.Diff(snapshot, current);
+                Console.WriteLine($"[{stamp}] ⚠️ ЗМІНА схеми: +{diff.AddedEndpoints.Count} -{diff.RemovedEndpoints.Count} ~{diff.ChangedEndpoints.Count} rename {diff.Renames.Count} → тестую…");
+                await agent.FullCycleAsync(Log);
+            }
+            else
+            {
+                Console.WriteLine($"[{stamp}] без змін.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[{stamp}] помилка: {ex.Message}");
+        }
+        await Task.Delay(intervalSec * 1000);
+    }
+}
 
 async Task RunSmokeAsync()
 {

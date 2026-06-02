@@ -1,0 +1,107 @@
+using QaAgent.App;
+using QaAgent.Core;
+using QaAgent.Swagger;
+
+namespace QaAgent.Web.Services;
+
+public sealed record MonitorEvent(DateTimeOffset Time, string Target, string Message, bool Important);
+
+/// <summary>
+/// Фоновий моніторинг Swagger: періодично опитує кожен таргет, дешево порівнює hash схеми,
+/// і ЛИШЕ при зміні (новий/змінений/перейменований ендпоінт) запускає повний цикл
+/// (probe→generate→run→heal→report). Працює, доки живе веб-додаток.
+/// </summary>
+public sealed class SchemaMonitor : BackgroundService
+{
+    private readonly WorkspacePaths _paths;
+    private readonly AgentSettings _settings;
+    private readonly object _gate = new();
+    private readonly List<MonitorEvent> _events = new();
+
+    public bool Enabled { get; set; }
+    public int IntervalSeconds { get; set; } = 60;
+    public DateTimeOffset? LastCheck { get; private set; }
+    public bool Busy { get; private set; }
+
+    public SchemaMonitor(WorkspacePaths paths, AgentSettings settings)
+    {
+        _paths = paths;
+        _settings = settings;
+    }
+
+    public IReadOnlyList<MonitorEvent> Events
+    {
+        get { lock (_gate) return _events.AsEnumerable().Reverse().ToList(); }
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
+        Log("monitor", "Монітор запущено (очікує ввімкнення).", false);
+        while (!ct.IsCancellationRequested)
+        {
+            if (Enabled && !Busy)
+            {
+                Busy = true;
+                try { await CheckAllAsync(ct); }
+                catch (Exception ex) { Log("monitor", $"помилка циклу: {ex.Message}", true); }
+                finally { Busy = false; }
+            }
+            try { await Task.Delay(TimeSpan.FromSeconds(Math.Max(15, IntervalSeconds)), ct); }
+            catch (TaskCanceledException) { break; }
+        }
+    }
+
+    private async Task CheckAllAsync(CancellationToken ct)
+    {
+        LastCheck = DateTimeOffset.Now;
+        _settings.ApplyEnv();
+
+        foreach (var target in _settings.Targets.ToList())
+        {
+            ct.ThrowIfCancellationRequested();
+            var svc = new QaAgentService(_paths, target,
+                new OllamaOptions { Model = _settings.OllamaModel, Endpoint = _settings.OllamaEndpoint });
+
+            try
+            {
+                var current = await svc.LoadCurrentAsync(ct);
+                var snapshot = await svc.LoadSnapshotAsync(ct);
+
+                if (snapshot is null)
+                {
+                    Log(target.Name, "baseline — знімка немає, встановлюю та тестую…", true);
+                    var r = await svc.FullCycleAsync(null, ct);
+                    Log(target.Name, $"baseline готово: {Summary(r)}", true);
+                }
+                else if (snapshot.Hash != current.Hash)
+                {
+                    var diff = DiffEngine.Diff(snapshot, current);
+                    Log(target.Name, $"⚠️ ЗМІНА схеми: {DescribeDiff(diff)} → запускаю тести…", true);
+                    var r = await svc.FullCycleAsync(null, ct);
+                    Log(target.Name, $"результат: {Summary(r)}", true);
+                }
+                // інакше — без змін, тихо.
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                Log(target.Name, $"недоступний: {ex.Message}", false);
+            }
+        }
+    }
+
+    private static string DescribeDiff(ApiDiff d) =>
+        $"+{d.AddedEndpoints.Count} нових, -{d.RemovedEndpoints.Count} видалених, ~{d.ChangedEndpoints.Count} змінених, {d.Renames.Count} перейменувань";
+
+    private static string Summary(RunReport r) =>
+        r.TestRun is { } tr ? $"{(r.Success ? "✅ PASS" : "❌ FAIL")} {tr.Passed}/{tr.Total}" : "немає прогону";
+
+    private void Log(string target, string message, bool important)
+    {
+        lock (_gate)
+        {
+            _events.Add(new MonitorEvent(DateTimeOffset.Now, target, message, important));
+            if (_events.Count > 200) _events.RemoveRange(0, _events.Count - 200);
+        }
+    }
+}

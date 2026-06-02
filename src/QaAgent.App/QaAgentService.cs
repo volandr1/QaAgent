@@ -92,7 +92,8 @@ public sealed class QaAgentService
         return api;
     }
 
-    public async Task<(int Files, int Tests)> GenerateAsync(ApiSpec api, bool overwrite, Action<string>? log = null, CancellationToken ct = default)
+    public async Task<(int Files, int Tests)> GenerateAsync(ApiSpec api, bool overwrite, Action<string>? log = null,
+        CancellationToken ct = default, IReadOnlyCollection<string>? skipSignatures = null)
     {
         var logf = Safe(log);
         var generator = new TestGenerator(new LlmClient(_ollama));
@@ -106,6 +107,9 @@ public sealed class QaAgentService
 
         foreach (var ep in api.Endpoints)
         {
+            // Перейменовані ендпоінти не генеруємо заново — їх лагодить self-heal (старий файл).
+            if (skipSignatures is not null && skipSignatures.Contains(ep.Signature)) continue;
+
             var file = Path.Combine(GeneratedDir, renderer.ClassName(ep) + ".cs");
             if (!overwrite && File.Exists(file)) continue;
 
@@ -166,6 +170,21 @@ public sealed class QaAgentService
 
         logf($"Згенеровано {total} тест(ів) у {files} файлах.");
         return (files, total);
+    }
+
+    /// <summary>Видаляє файли тестів для ВИДАЛЕНИХ ендпоінтів (перейменування сюди не входять — їх лікує heal).</summary>
+    private int RemoveObsoleteTests(ApiDiff diff, ApiSpec previous)
+    {
+        var renderer = new TestRenderer();
+        var removed = 0;
+        foreach (var sig in diff.RemovedEndpoints)
+        {
+            var ep = previous.Endpoints.FirstOrDefault(e => e.Signature == sig);
+            if (ep is null) continue;
+            var file = Path.Combine(GeneratedDir, renderer.ClassName(ep) + ".cs");
+            if (File.Exists(file)) { File.Delete(file); removed++; }
+        }
+        return removed;
     }
 
     private static bool IsByIdOf(string path, string basePath) =>
@@ -259,9 +278,20 @@ public sealed class QaAgentService
             logf("   API без авторизації — пропущено.");
         }
 
-        logf("3) Генерація тестів (свіжа)...");
-        var (files, tests) = await GenerateAsync(current, overwrite: true, log: null, ct);
-        logf($"   файлів: {files}, тестів: {tests}");
+        if (previous is null)
+        {
+            logf("3) Генерація тестів (baseline)...");
+            var (files, tests) = await GenerateAsync(current, overwrite: true, log: null, ct);
+            logf($"   baseline: {files} файлів / {tests} тестів");
+        }
+        else
+        {
+            logf("3) Адаптація тестів (зберігаю наявні для self-heal)...");
+            var removed = RemoveObsoleteTests(diff, previous);
+            var renameTargets = diff.Renames.Select(r => r.To).ToHashSet();
+            var (files, tests) = await GenerateAsync(current, overwrite: false, log: null, ct, skipSignatures: renameTargets);
+            logf($"   нових файлів: {files}, прибрано застарілих: {removed}");
+        }
 
         logf("4) Прогін" + (diff.HasChanges && previous is not null ? " + self-healing..." : "..."));
         TestRun finalRun;

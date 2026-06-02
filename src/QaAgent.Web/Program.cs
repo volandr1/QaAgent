@@ -9,6 +9,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton(new WorkspacePaths());
 builder.Services.AddSingleton<AgentSettings>();
+builder.Services.AddSingleton<SchemaMonitor>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<SchemaMonitor>());
 
 var app = builder.Build();
 

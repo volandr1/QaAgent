@@ -1,0 +1,65 @@
+@page "/monitor"
+@implements IDisposable
+@inject SchemaMonitor Mon
+
+<PageTitle>QA-агент · Моніторинг</PageTitle>
+
+<h1>Фоновий моніторинг Swagger</h1>
+<p class="muted">
+    Агент періодично опитує схему кожного таргета і — лише при зміні ендпоінтів —
+    автоматично перегенеровує тести, запускає їх і надсилає звіт.
+</p>
+
+<div class="card" style="max-width:680px">
+    <label style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" style="width:auto" checked="@Mon.Enabled" @onchange="Toggle" />
+        Увімкнути моніторинг
+    </label>
+
+    <label>Інтервал перевірки (секунд, мін. 15)</label>
+    <input type="number" min="15" @bind="Mon.IntervalSeconds" style="width:120px" />
+
+    <div style="margin-top:12px">
+        <span class="badge @(Mon.Enabled ? (Mon.Busy ? "run" : "pass") : "fail")">
+            @(Mon.Enabled ? (Mon.Busy ? "⏳ перевіряє…" : "● увімкнено") : "○ вимкнено")
+        </span>
+        @if (Mon.LastCheck is { } lc)
+        {
+            <span class="muted" style="margin-left:10px">остання перевірка: @lc.ToLocalTime().ToString("HH:mm:ss")</span>
+        }
+    </div>
+</div>
+
+<h2>Журнал подій</h2>
+@if (Mon.Events.Count == 0)
+{
+    <p class="muted">Подій ще немає.</p>
+}
+else
+{
+    <table>
+        <thead><tr><th>Час</th><th>Таргет</th><th>Подія</th></tr></thead>
+        <tbody>
+        @foreach (var e in Mon.Events)
+        {
+            <tr style="@(e.Important ? "font-weight:600" : "")">
+                <td style="white-space:nowrap">@e.Time.ToLocalTime().ToString("HH:mm:ss")</td>
+                <td>@e.Target</td>
+                <td>@e.Message</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Timer? _timer;
+
+    protected override void OnInitialized() =>
+        _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, 2000, 2000);
+
+    private void Toggle(ChangeEventArgs e) =>
+        Mon.Enabled = e.Value is true;
+
+    public void Dispose() => _timer?.Dispose();
+}

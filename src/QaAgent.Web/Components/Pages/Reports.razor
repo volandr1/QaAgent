@@ -1,11 +1,10 @@
 @page "/history"
 @inject WorkspacePaths Paths
-@inject AgentSettings Settings
 
 <PageTitle>QA-агент · Історія</PageTitle>
 
 <h1>Історія прогонів</h1>
-<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+<p class="muted">Усі таргети · @_runs.Count прогонів (зберігаються на диску, переживають перезапуск)</p>
 
 @if (_runs.Count == 0)
 {
@@ -14,18 +13,19 @@
 else
 {
     <table>
-        <thead><tr><th>Час</th><th>Статус</th><th>Тести</th><th>Хілінг</th><th>Баги</th><th></th></tr></thead>
+        <thead><tr><th>Час</th><th>Таргет</th><th>Статус</th><th>Тести</th><th>Хілінг</th><th>Баги</th><th></th></tr></thead>
         <tbody>
         @foreach (var r in _runs)
         {
             var tr = r.Report.TestRun;
             <tr>
-                <td>@r.Report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td style="white-space:nowrap">@r.Report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@r.Target</td>
                 <td><span class="badge @(r.Report.Success ? "pass" : "fail")">@(r.Report.Success ? "PASS" : "FAIL")</span></td>
                 <td>@(tr is null ? "—" : $"{tr.Passed}/{tr.Total}")</td>
                 <td>@(r.Report.SelfHealingApplied ? $"🩹 {r.Report.HealedFiles.Count}" : "—")</td>
                 <td>@(r.Report.BugCount > 0 ? $"🐞 {r.Report.BugCount}" : "—")</td>
-                <td><a href="@($"detail/{Settings.TargetName}/{r.Stamp}")">деталі →</a></td>
+                <td><a href="@($"detail/{r.Target}/{r.Stamp}")">деталі →</a></td>
             </tr>
         }
         </tbody>
@@ -36,5 +36,5 @@ else
     private List<RunRecord> _runs = new();
 
     protected override void OnInitialized() =>
-        _runs = ReportStore.List(Paths.ReportsFor(Settings.TargetName));
+        _runs = ReportStore.ListAll(Paths.Artifacts);
 }

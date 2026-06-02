@@ -3,7 +3,7 @@
   "Version": "1.0",
   "SourceUrl": "http://localhost:5234/swagger/v1/swagger.json",
   "ServerUrl": "http://localhost:5234",
-  "CapturedAt": "2026-06-02T17:19:33.2422937+00:00",
+  "CapturedAt": "2026-06-02T21:38:07.2740764+00:00",
   "Endpoints": [
     {
       "Method": "DELETE",
@@ -437,6 +437,59 @@
       ],
       "Auth": "Admin",
       "Signature": "PUT /api/Auth/setrole"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "BookRequestDto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK",
+          "Schema": null
+        }
+      ],
+      "Auth": "Admin",
+      "Signature": "PUT /api/Books/{id}"
     }
   ],
   "Schemas": {
@@ -614,5 +667,5 @@
       "Enum": null
     }
   },
-  "Hash": "BCC3E86812CCAC1630A532F63F18F0E4E042FC57AF91BB1427E21BDB00667271"
+  "Hash": "A52104F196C3C74C13F973715519314C2F950375F919C960A563E33562F4E6A6"
 }

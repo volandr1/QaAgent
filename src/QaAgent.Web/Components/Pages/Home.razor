@@ -15,6 +15,10 @@
         }
     </select>
     <span class="muted">@Settings.CurrentTarget.SwaggerUrl · @Settings.OllamaModel</span>
+    @if (TargetConfig.BuiltIn.All(b => !b.Name.Equals(Settings.TargetName, StringComparison.OrdinalIgnoreCase)))
+    {
+        <button @onclick="RemoveCurrent" disabled="@_running" title="Прибрати цей таргет">✕</button>
+    }
 </div>
 
 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; max-width:760px;">
@@ -76,6 +80,13 @@
         if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return;
         Settings.AddCustom(url);
         _customUrl = "";
+        _report = null;
+        _log.Clear();
+    }
+
+    private void RemoveCurrent()
+    {
+        Settings.RemoveCustom(Settings.TargetName);
         _report = null;
         _log.Clear();
     }

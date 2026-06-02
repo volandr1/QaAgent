@@ -3,7 +3,7 @@
   "Version": "1.0.27",
   "SourceUrl": "https://petstore3.swagger.io/api/v3/openapi.json",
   "ServerUrl": "https://petstore3.swagger.io/api/v3",
-  "CapturedAt": "2026-06-02T17:09:19.1590783+00:00",
+  "CapturedAt": "2026-06-02T20:26:05.0190318+00:00",
   "Endpoints": [
     {
       "Method": "DELETE",

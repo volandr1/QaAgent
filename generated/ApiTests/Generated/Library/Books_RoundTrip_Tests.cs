@@ -35,6 +35,22 @@ public class Books_RoundTrip_Tests : ApiTestBase
         Assert.That((int)getResp.Status, Is.EqualTo(200),
             $"Створений ресурс недоступний за id={id} (персистентність?): {(int)getResp.Status}");
 
+        var updateResp = await Api.PutAsync($"api/Books/{id}", new APIRequestContextOptions
+        {
+            Headers = new Dictionary<string, string> { ["Authorization"] = $"Bearer {adminToken}", ["Content-Type"] = "application/json" },
+            DataString = """
+            {"title":"QaAgentUpdated","description":"string","authors":["string"],"genres":["string"]}
+            """
+        });
+        Assert.That((int)updateResp.Status, Is.InRange(200, 299),
+            $"Оновлення не вдалося: {(int)updateResp.Status}: {await updateResp.TextAsync()}");
+
+        var afterUpdate = await Api.GetAsync($"api/Books/{id}");
+        Assert.That((int)afterUpdate.Status, Is.EqualTo(200),
+            $"Ресурс недоступний після оновлення: {(int)afterUpdate.Status}");
+        Assert.That(await afterUpdate.TextAsync(), Does.Contain("QaAgentUpdated"),
+            "Оновлення не збереглося: змінене значення відсутнє у відповіді.");
+
         var delResp = await Api.DeleteAsync($"api/Books/{id}", new APIRequestContextOptions
         {
             Headers = new Dictionary<string, string> { ["Authorization"] = $"Bearer {adminToken}" }
