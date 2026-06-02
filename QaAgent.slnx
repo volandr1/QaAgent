@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/generated/">
+    <Project Path="generated/ApiTests/ApiTests.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/QaAgent.Cli/QaAgent.Cli.csproj" />
+    <Project Path="src/QaAgent.Core/QaAgent.Core.csproj" />
+    <Project Path="src/QaAgent.Execution/QaAgent.Execution.csproj" />
+    <Project Path="src/QaAgent.Generation/QaAgent.Generation.csproj" />
+    <Project Path="src/QaAgent.Healing/QaAgent.Healing.csproj" />
+    <Project Path="src/QaAgent.Llm/QaAgent.Llm.csproj" />
+    <Project Path="src/QaAgent.Probing/QaAgent.Probing.csproj" />
+    <Project Path="src/QaAgent.Reporting/QaAgent.Reporting.csproj" />
+    <Project Path="src/QaAgent.Swagger/QaAgent.Swagger.csproj" />
+  </Folder>
+</Solution>

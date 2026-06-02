@@ -1,0 +1,83 @@
+# QA-агент у CI/CD.
+#
+# ⚠️ Потрібен SELF-HOSTED раннер: на ньому має бути встановлена Ollama з моделлю
+#    (deepseek-coder-v2 / qwen2.5-coder) і доступ до цільового API.
+#    GitHub-hosted раннери НЕ підходять (немає Ollama/GPU, модель ~5-9 ГБ щоразу).
+#
+# Конфіг через Variables (vars.*) і Secrets (secrets.*) репозиторію.
+
+name: QA Agent
+
+on:
+  workflow_dispatch:          # ручний запуск
+  schedule:
+    - cron: '0 6 * * *'       # щодня о 06:00 UTC
+  push:
+    branches: [ main ]
+
+jobs:
+  qa:
+    runs-on: [self-hosted]
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      QA_OLLAMA_MODEL: ${{ vars.QA_OLLAMA_MODEL || 'deepseek-coder-v2:latest' }}
+      QA_OLLAMA_ENDPOINT: ${{ vars.QA_OLLAMA_ENDPOINT || 'http://localhost:11434' }}
+      API_BASE_URL: ${{ vars.API_BASE_URL || 'http://localhost:5234' }}
+      QA_API_PROJECT: ${{ vars.QA_API_PROJECT }}
+      QA_ADMIN_EMAIL: ${{ vars.QA_ADMIN_EMAIL || 'qa.admin@example.com' }}
+      QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD || 'Passw0rd!' }}
+      # Канали звітності (опційно — вмикаються лише якщо задані):
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      QA_SMTP_HOST: ${{ secrets.QA_SMTP_HOST }}
+      QA_SMTP_PORT: ${{ secrets.QA_SMTP_PORT }}
+      QA_SMTP_USER: ${{ secrets.QA_SMTP_USER }}
+      QA_SMTP_PASS: ${{ secrets.QA_SMTP_PASS }}
+      QA_MAIL_FROM: ${{ secrets.QA_MAIL_FROM }}
+      QA_MAIL_TO: ${{ secrets.QA_MAIL_TO }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Перевірка Ollama
+        run: curl -sf "$QA_OLLAMA_ENDPOINT/api/tags" > /dev/null
+
+      - name: Build
+        run: dotnet build QaAgent.slnx -c Release --nologo
+
+      - name: Очікування цільового API
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf "$API_BASE_URL/swagger/v1/swagger.json" > /dev/null; then
+              echo "API готовий"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Цільове API недоступне на $API_BASE_URL"; exit 1
+
+      - name: Seed admin (для positive-admin тестів)
+        if: env.QA_API_PROJECT != ''
+        run: dotnet run --project src/QaAgent.Cli -c Release --no-build -- seed "$API_BASE_URL/swagger/v1/swagger.json"
+
+      # Повний цикл: probe → generate → run → self-heal → report.
+      # Exit code != 0 (є реальні падіння) завалює джобу — це гейт якості.
+      - name: QA Agent (full cycle)
+        run: dotnet run --project src/QaAgent.Cli -c Release --no-build -- agent "$API_BASE_URL/swagger/v1/swagger.json"
+
+      - name: Публікація звіту
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report
+          path: |
+            artifacts/reports/
+            artifacts/test-results/
+          if-no-files-found: warn

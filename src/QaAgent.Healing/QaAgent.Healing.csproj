@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\QaAgent.Core\QaAgent.Core.csproj" />
+    <ProjectReference Include="..\QaAgent.Llm\QaAgent.Llm.csproj" />
+    <ProjectReference Include="..\QaAgent.Swagger\QaAgent.Swagger.csproj" />
+    <ProjectReference Include="..\QaAgent.Execution\QaAgent.Execution.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

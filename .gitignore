@@ -1,0 +1,14 @@
+# .NET build
+**/bin/
+**/obj/
+
+# Тимчасові артефакти прогонів (звіти/TRX) — не комітимо
+artifacts/reports/
+artifacts/test-results/
+
+# Зберігаємо: artifacts/schema-snapshot.json (baseline для diff/self-healing)
+#            generated/ApiTests/Generated/*.cs (тести — основа для self-healing)
+
+# Rider/IDE
+.idea/
+*.user

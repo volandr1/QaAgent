@@ -1,0 +1,470 @@
+{
+  "Title": "OnlineLibrary",
+  "Version": "1.0",
+  "SourceUrl": "http://localhost:5234/swagger/v1/swagger.json",
+  "CapturedAt": "2026-06-02T11:01:05.3256365+00:00",
+  "Endpoints": [
+    {
+      "Method": "DELETE",
+      "Path": "/api/Books/favorites/{bookId}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "bookId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "DELETE /api/Books/favorites/{bookId}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/api/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Admin",
+      "Signature": "DELETE /api/Books/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Books",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/Books"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Books/export/csv",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Admin",
+      "Signature": "GET /api/Books/export/csv"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Books/favorites",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "GET /api/Books/favorites"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Books/search",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "title",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/Books/search"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/Books/{id}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Auth/login",
+      "OperationId": null,
+      "Tag": "Auth",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "LoginDto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/Auth/login"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Auth/register",
+      "OperationId": null,
+      "Tag": "Auth",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "RegisterDto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/Auth/register"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Books",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "BookRequestDto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Admin",
+      "Signature": "POST /api/Books"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Books/favorites/{bookId}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "bookId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "POST /api/Books/favorites/{bookId}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Books/take/{bookId}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "bookId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "POST /api/Books/take/{bookId}"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/Auth/setrole",
+      "OperationId": null,
+      "Tag": "Auth",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "email",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "role",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK"
+        }
+      ],
+      "Auth": "Admin",
+      "Signature": "PUT /api/Auth/setrole"
+    }
+  ],
+  "Schemas": {
+    "BookRequestDto": {
+      "Type": null,
+      "Format": null,
+      "Reference": "BookRequestDto",
+      "Required": [],
+      "Properties": {},
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "LoginDto": {
+      "Type": null,
+      "Format": null,
+      "Reference": "LoginDto",
+      "Required": [],
+      "Properties": {},
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "RegisterDto": {
+      "Type": null,
+      "Format": null,
+      "Reference": "RegisterDto",
+      "Required": [],
+      "Properties": {},
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    }
+  },
+  "Hash": "D55AA040E01C515CAC6055A8A2234CCCBE7EBB02952A52F97F889F8D6C1D5687"
+}
