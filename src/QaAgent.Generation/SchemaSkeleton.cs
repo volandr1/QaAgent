@@ -15,6 +15,10 @@ public static class SchemaSkeleton
         return JsonSerializer.Serialize(node);
     }
 
+    /// <summary>Граф валідного прикладу тіла як словник (для мутацій у negative-сценаріях).</summary>
+    public static Dictionary<string, object?>? BuildObject(SchemaSpec schema, ApiSpec api) =>
+        BuildNode(schema, api, 0) as Dictionary<string, object?>;
+
     private static object? BuildNode(SchemaSpec schema, ApiSpec api, int depth)
     {
         if (depth > 6) return null;
@@ -39,7 +43,20 @@ public static class SchemaSkeleton
             "integer" => 0,
             "number" => 0,
             "boolean" => false,
-            _ => target.Format == "email" ? "user@example.com" : "string"
+            _ => FormatValue(target.Format)
         };
     }
+
+    /// <summary>Валідне значення-зразок для рядкових форматів (дати, guid, email тощо).</summary>
+    private static string FormatValue(string? format) => format switch
+    {
+        "email" => "user@example.com",
+        "date-time" => "2024-01-01T00:00:00Z",
+        "date" => "2024-01-01",
+        "uuid" or "guid" => "00000000-0000-0000-0000-000000000000",
+        "uri" or "url" => "https://example.com",
+        "byte" => "U3RyaW5n",
+        "binary" => "U3RyaW5n",
+        _ => "string"
+    };
 }

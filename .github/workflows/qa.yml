@@ -23,7 +23,7 @@ jobs:
         shell: bash
 
     env:
-      QA_OLLAMA_MODEL: ${{ vars.QA_OLLAMA_MODEL || 'deepseek-coder-v2:latest' }}
+      QA_OLLAMA_MODEL: ${{ vars.QA_OLLAMA_MODEL || 'qwen2.5-coder:7b' }}
       QA_OLLAMA_ENDPOINT: ${{ vars.QA_OLLAMA_ENDPOINT || 'http://localhost:11434' }}
       API_BASE_URL: ${{ vars.API_BASE_URL || 'http://localhost:5234' }}
       QA_API_PROJECT: ${{ vars.QA_API_PROJECT }}

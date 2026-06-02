@@ -31,6 +31,9 @@ public sealed class RunReport
 
     public List<ReportFinding> Findings { get; set; } = new();
 
+    /// <summary>Стислий AI-аналіз прогону (резюме + ймовірні причини + рекомендації).</summary>
+    public string? AiAnalysis { get; set; }
+
     public bool Success { get; set; }
     public int BugCount => Findings.Count(f => f.Severity == FindingSeverity.Bug);
 }

@@ -15,7 +15,8 @@ public sealed class TestRunner
     public sealed record RunOutput(TestRun Run, int ExitCode, string StdOut, string StdErr);
 
     public async Task<RunOutput> RunAsync(
-        string testProjectPath, string resultsDir, CancellationToken ct = default)
+        string testProjectPath, string resultsDir,
+        string? baseUrl = null, string? filter = null, CancellationToken ct = default)
     {
         Directory.CreateDirectory(resultsDir);
         foreach (var old in Directory.GetFiles(resultsDir, "*.trx"))
@@ -28,6 +29,9 @@ public sealed class TestRunner
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        if (!string.IsNullOrWhiteSpace(baseUrl))
+            psi.Environment["API_BASE_URL"] = baseUrl; // цільове API для ApiTestBase
+
         psi.ArgumentList.Add("test");
         psi.ArgumentList.Add(testProjectPath);
         psi.ArgumentList.Add("--nologo");
@@ -35,6 +39,11 @@ public sealed class TestRunner
         psi.ArgumentList.Add("trx");
         psi.ArgumentList.Add("--results-directory");
         psi.ArgumentList.Add(resultsDir);
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            psi.ArgumentList.Add("--filter");
+            psi.ArgumentList.Add(filter);
+        }
 
         using var proc = Process.Start(psi)
             ?? throw new InvalidOperationException("Не вдалося запустити `dotnet test`.");

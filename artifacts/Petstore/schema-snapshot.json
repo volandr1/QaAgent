@@ -1,0 +1,1699 @@
+{
+  "Title": "Swagger Petstore - OpenAPI 3.0",
+  "Version": "1.0.27",
+  "SourceUrl": "https://petstore3.swagger.io/api/v3/openapi.json",
+  "ServerUrl": "https://petstore3.swagger.io/api/v3",
+  "CapturedAt": "2026-06-02T17:09:19.1590783+00:00",
+  "Endpoints": [
+    {
+      "Method": "DELETE",
+      "Path": "/pet/{petId}",
+      "OperationId": "deletePet",
+      "Tag": "pet",
+      "Summary": "Deletes a pet.",
+      "Parameters": [
+        {
+          "Name": "api_key",
+          "In": "Header",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "petId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Pet deleted",
+          "Schema": null
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid pet value",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /pet/{petId}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/store/order/{orderId}",
+      "OperationId": "deleteOrder",
+      "Tag": "store",
+      "Summary": "Delete purchase order by identifier.",
+      "Parameters": [
+        {
+          "Name": "orderId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "order deleted",
+          "Schema": null
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid ID supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "Order not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /store/order/{orderId}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/user/{username}",
+      "OperationId": "deleteUser",
+      "Tag": "user",
+      "Summary": "Delete user resource.",
+      "Parameters": [
+        {
+          "Name": "username",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "User deleted",
+          "Schema": null
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid username supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "User not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /user/{username}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/pet/findByStatus",
+      "OperationId": "findPetsByStatus",
+      "Tag": "pet",
+      "Summary": "Finds Pets by status.",
+      "Parameters": [
+        {
+          "Name": "status",
+          "In": "Query",
+          "Required": true,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": [
+              "Microsoft.OpenApi.Any.OpenApiString",
+              "Microsoft.OpenApi.Any.OpenApiString",
+              "Microsoft.OpenApi.Any.OpenApiString"
+            ]
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Pet",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid status value",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /pet/findByStatus"
+    },
+    {
+      "Method": "GET",
+      "Path": "/pet/findByTags",
+      "OperationId": "findPetsByTags",
+      "Tag": "pet",
+      "Summary": "Finds Pets by tags.",
+      "Parameters": [
+        {
+          "Name": "tags",
+          "In": "Query",
+          "Required": true,
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": "string",
+              "Format": null,
+              "Reference": null,
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Pet",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid tag value",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /pet/findByTags"
+    },
+    {
+      "Method": "GET",
+      "Path": "/pet/{petId}",
+      "OperationId": "getPetById",
+      "Tag": "pet",
+      "Summary": "Find pet by ID.",
+      "Parameters": [
+        {
+          "Name": "petId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Pet",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid ID supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "Pet not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /pet/{petId}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/store/inventory",
+      "OperationId": "getInventory",
+      "Tag": "store",
+      "Summary": "Returns pet inventories by status.",
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": "object",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /store/inventory"
+    },
+    {
+      "Method": "GET",
+      "Path": "/store/order/{orderId}",
+      "OperationId": "getOrderById",
+      "Tag": "store",
+      "Summary": "Find purchase order by ID.",
+      "Parameters": [
+        {
+          "Name": "orderId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Order",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid ID supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "Order not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /store/order/{orderId}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/user/login",
+      "OperationId": "loginUser",
+      "Tag": "user",
+      "Summary": "Logs user into the system.",
+      "Parameters": [
+        {
+          "Name": "username",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "password",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid username/password supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /user/login"
+    },
+    {
+      "Method": "GET",
+      "Path": "/user/logout",
+      "OperationId": "logoutUser",
+      "Tag": "user",
+      "Summary": "Logs out current logged in user session.",
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /user/logout"
+    },
+    {
+      "Method": "GET",
+      "Path": "/user/{username}",
+      "OperationId": "getUserByName",
+      "Tag": "user",
+      "Summary": "Get user by user name.",
+      "Parameters": [
+        {
+          "Name": "username",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "User",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid username supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "User not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /user/{username}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/pet",
+      "OperationId": "addPet",
+      "Tag": "pet",
+      "Summary": "Add a new pet to the store.",
+      "Parameters": [],
+      "RequestBody": {
+        "Required": true,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Pet",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Pet",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid input",
+          "Schema": null
+        },
+        {
+          "StatusCode": "422",
+          "Description": "Validation exception",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /pet"
+    },
+    {
+      "Method": "POST",
+      "Path": "/pet/{petId}",
+      "OperationId": "updatePetWithForm",
+      "Tag": "pet",
+      "Summary": "Updates a pet in the store with form data.",
+      "Parameters": [
+        {
+          "Name": "petId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "name",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "status",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Pet",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid input",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /pet/{petId}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/pet/{petId}/uploadImage",
+      "OperationId": "uploadFile",
+      "Tag": "pet",
+      "Summary": "Uploads an image.",
+      "Parameters": [
+        {
+          "Name": "petId",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int64",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "Name": "additionalMetadata",
+          "In": "Query",
+          "Required": false,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/octet-stream",
+        "Schema": {
+          "Type": "string",
+          "Format": "binary",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "ApiResponse",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "No file uploaded",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "Pet not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /pet/{petId}/uploadImage"
+    },
+    {
+      "Method": "POST",
+      "Path": "/store/order",
+      "OperationId": "placeOrder",
+      "Tag": "store",
+      "Summary": "Place an order for a pet.",
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Order",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Order",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid input",
+          "Schema": null
+        },
+        {
+          "StatusCode": "422",
+          "Description": "Validation exception",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /store/order"
+    },
+    {
+      "Method": "POST",
+      "Path": "/user",
+      "OperationId": "createUser",
+      "Tag": "user",
+      "Summary": "Create user.",
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "User",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "User",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /user"
+    },
+    {
+      "Method": "POST",
+      "Path": "/user/createWithList",
+      "OperationId": "createUsersWithListInput",
+      "Tag": "user",
+      "Summary": "Creates list of users with given input array.",
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": "array",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": {
+            "Type": null,
+            "Format": null,
+            "Reference": "User",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          },
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "User",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /user/createWithList"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/pet",
+      "OperationId": "updatePet",
+      "Tag": "pet",
+      "Summary": "Update an existing pet.",
+      "Parameters": [],
+      "RequestBody": {
+        "Required": true,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Pet",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Successful operation",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Pet",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        },
+        {
+          "StatusCode": "400",
+          "Description": "Invalid ID supplied",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "Pet not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "422",
+          "Description": "Validation exception",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /pet"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/user/{username}",
+      "OperationId": "updateUser",
+      "Tag": "user",
+      "Summary": "Update user resource.",
+      "Parameters": [
+        {
+          "Name": "username",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "User",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "successful operation",
+          "Schema": null
+        },
+        {
+          "StatusCode": "400",
+          "Description": "bad request",
+          "Schema": null
+        },
+        {
+          "StatusCode": "404",
+          "Description": "user not found",
+          "Schema": null
+        },
+        {
+          "StatusCode": "default",
+          "Description": "Unexpected error",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /user/{username}"
+    }
+  ],
+  "Schemas": {
+    "Order": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "petId": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "quantity": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "shipDate": {
+          "Type": "string",
+          "Format": "date-time",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "status": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": [
+            "Microsoft.OpenApi.Any.OpenApiString",
+            "Microsoft.OpenApi.Any.OpenApiString",
+            "Microsoft.OpenApi.Any.OpenApiString"
+          ]
+        },
+        "complete": {
+          "Type": "boolean",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "Category": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "name": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "User": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "username": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "firstName": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "lastName": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "email": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "password": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "phone": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "userStatus": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "Tag": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "name": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "Pet": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [
+        "name",
+        "photoUrls"
+      ],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int64",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "name": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "category": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Category",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "photoUrls": {
+          "Type": "array",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": {
+            "Type": "string",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          },
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "tags": {
+          "Type": "array",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Tag",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          },
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "status": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": [
+            "Microsoft.OpenApi.Any.OpenApiString",
+            "Microsoft.OpenApi.Any.OpenApiString",
+            "Microsoft.OpenApi.Any.OpenApiString"
+          ]
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "ApiResponse": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "code": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "type": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "message": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    }
+  },
+  "Hash": "7BE06105F9CC35FFA58642BC49AD5B013180628A340A9238D68EA98D1C3C7510"
+}

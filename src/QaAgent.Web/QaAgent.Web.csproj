@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\QaAgent.App\QaAgent.App.csproj" />
+    <ProjectReference Include="..\QaAgent.Core\QaAgent.Core.csproj" />
+    <ProjectReference Include="..\QaAgent.Swagger\QaAgent.Swagger.csproj" />
+    <ProjectReference Include="..\QaAgent.Reporting\QaAgent.Reporting.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+</Project>

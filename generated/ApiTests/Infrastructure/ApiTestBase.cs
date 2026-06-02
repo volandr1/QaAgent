@@ -31,7 +31,8 @@ public abstract class ApiTestBase
         PlaywrightInstance = await Playwright.CreateAsync();
         Api = await PlaywrightInstance.APIRequest.NewContextAsync(new APIRequestNewContextOptions
         {
-            BaseURL = BaseUrl,
+            // Кінцевий "/" обовʼязковий: інакше відносний шлях скидає базовий шлях (напр. /api/v3).
+            BaseURL = BaseUrl.TrimEnd('/') + "/",
             IgnoreHTTPSErrors = true
         });
     }

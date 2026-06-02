@@ -24,11 +24,14 @@ public sealed class TestScenario
     /// <summary>Який токен підставити в Authorization: none | client | admin</summary>
     public string Auth { get; set; } = "none";
 
-    /// <summary>
-    /// Якщо true — асертимо діапазон 4xx замість точного коду.
-    /// Для negative-тестів точний код валідації (400/401/422) не задокументований у схемі.
-    /// </summary>
+    /// <summary>Асертити діапазон 4xx (negative — точний код валідації невідомий).</summary>
     public bool ClientErrorRange { get; set; }
+
+    /// <summary>Асертити діапазон 2xx (positive-create — 200/201 залежить від API).</summary>
+    public bool SuccessRange { get; set; }
+
+    /// <summary>Асертити «не 5xx» (smoke — ендпоінт існує і не падає).</summary>
+    public bool NoServerError { get; set; }
 }
 
 public sealed class ScenarioSet

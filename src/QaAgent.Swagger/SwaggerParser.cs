@@ -19,7 +19,22 @@ public sealed class SwaggerParser
         await using var stream = await Http.GetStreamAsync(url, ct);
         var spec = Parse(stream);
         spec.SourceUrl = url;
+        ResolveServerUrl(spec, url);
         return spec;
+    }
+
+    /// <summary>Перетворює (можливо відносний) servers[0].url на абсолютний базовий URL.</summary>
+    private static void ResolveServerUrl(ApiSpec spec, string swaggerUrl)
+    {
+        var authority = new Uri(swaggerUrl).GetLeftPart(UriPartial.Authority);
+        var server = spec.ServerUrl;
+
+        if (string.IsNullOrWhiteSpace(server) || server == "/")
+            spec.ServerUrl = authority;
+        else if (server.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            spec.ServerUrl = server.TrimEnd('/');
+        else
+            spec.ServerUrl = authority + "/" + server.Trim('/');
     }
 
     public ApiSpec LoadFromFile(string path)
@@ -46,12 +61,13 @@ public sealed class SwaggerParser
         var spec = new ApiSpec
         {
             Title = doc.Info?.Title ?? string.Empty,
-            Version = doc.Info?.Version ?? string.Empty
+            Version = doc.Info?.Version ?? string.Empty,
+            ServerUrl = doc.Servers?.FirstOrDefault()?.Url
         };
 
         if (doc.Components?.Schemas is { } schemas)
             foreach (var (name, schema) in schemas)
-                spec.Schemas[name] = MapSchema(schema);
+                spec.Schemas[name] = MapSchemaBody(schema);   // повне тіло (не самопосилання)
 
         foreach (var (path, item) in doc.Paths)
         {
@@ -91,7 +107,15 @@ public sealed class SwaggerParser
                 }
 
                 foreach (var (code, resp) in op.Responses)
-                    ep.Responses.Add(new ResponseSpec { StatusCode = code, Description = resp.Description });
+                {
+                    var rs = new ResponseSpec { StatusCode = code, Description = resp.Description };
+                    if (resp.Content is { Count: > 0 } rc)
+                    {
+                        var media = rc.TryGetValue("application/json", out var mt) ? mt : rc.First().Value;
+                        if (media.Schema is not null) rs.Schema = MapSchema(media.Schema);
+                    }
+                    ep.Responses.Add(rs);
+                }
 
                 spec.Endpoints.Add(ep);
             }
@@ -109,6 +133,13 @@ public sealed class SwaggerParser
         if (s.Reference?.Id is { } refId)
             return new SchemaSpec { Reference = refId };
 
+        return MapSchemaBody(s);
+    }
+
+    /// <summary>Мапить ТІЛО схеми (type/properties/items) без короткого замикання на власному $ref.
+    /// Використовується для визначень компонентів, бо Microsoft.OpenApi ставить Reference на сам компонент.</summary>
+    private static SchemaSpec MapSchemaBody(OpenApiSchema s)
+    {
         var spec = new SchemaSpec
         {
             Type = s.Type,

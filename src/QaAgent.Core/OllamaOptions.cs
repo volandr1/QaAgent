@@ -11,7 +11,7 @@ public sealed class OllamaOptions
 
     /// <summary>Ідентифікатор моделі (env QA_OLLAMA_MODEL; як у `ollama list`).</summary>
     public string Model { get; set; } =
-        Environment.GetEnvironmentVariable("QA_OLLAMA_MODEL") ?? "deepseek-coder-v2:latest";
+        Environment.GetEnvironmentVariable("QA_OLLAMA_MODEL") ?? "qwen2.5-coder:7b";
 
     /// <summary>Низька температура для стабільної генерації коду.</summary>
     public float Temperature { get; set; } = 0.1f;

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using QaAgent.Core;
 
 namespace QaAgent.Generation;
@@ -68,6 +69,29 @@ public static class ScenarioBuilder
         }
     }
 
+    /// <summary>
+    /// Smoke для write-ендпоінтів: DELETE неіснуючого ресурсу — ендпоінт існує і не падає (не 5xx).
+    /// Неруйнівне (id не існує). Точний код (404 vs 204) у різних API різний — тому лише «не 5xx».
+    /// </summary>
+    public static IEnumerable<TestScenario> WriteSmokeScenarios(EndpointSpec ep)
+    {
+        if (ep.Method == "DELETE" && ep.Auth == AuthRequirement.Anonymous &&
+            ep.Parameters.Any(p => p.In == ParamLocation.Path))
+        {
+            yield return new TestScenario
+            {
+                Name = $"{BaseName(ep)}_NonExistent_NoServerError",
+                Description = "DELETE неіснуючого ресурсу: ендпоінт існує, без серверної помилки.",
+                Method = ep.Method,
+                Path = ep.Path,
+                PathParams = DummyPathParams(ep),
+                Auth = "none",
+                NoServerError = true,
+                Type = "smoke"
+            };
+        }
+    }
+
     public static IEnumerable<TestScenario> BoundaryScenarios(EndpointSpec ep)
     {
         // GET за неіснуючим числовим id (анонімний) → 404.
@@ -75,7 +99,11 @@ public static class ScenarioBuilder
             p.In == ParamLocation.Path &&
             (p.Schema.Type == "integer" || p.Schema.Format is "int32" or "int64"));
 
-        if (ep.Method == "GET" && ep.Auth == AuthRequirement.Anonymous && intPathParam is not null)
+        // Колекційні ендпоінти (2xx повертає масив) на неіснуючий батьк. id дають 200+[], а не 404.
+        var success = ep.Responses.FirstOrDefault(r => r.StatusCode.StartsWith("2"));
+        var returnsArray = success?.Schema?.Type == "array";
+
+        if (ep.Method == "GET" && ep.Auth == AuthRequirement.Anonymous && intPathParam is not null && !returnsArray)
         {
             yield return new TestScenario
             {
@@ -90,6 +118,69 @@ public static class ScenarioBuilder
             };
         }
     }
+
+    /// <summary>
+    /// Negative-сценарії НА ПРАВИЛАХ зі схеми (без LLM): порушуємо лише реальні обмеження —
+    /// відсутнє required-поле, поганий format=email, закоротке значення (minLength).
+    /// Якщо обмежень немає — нічого не генеруємо (уникаємо шуму на API без валідації).
+    /// </summary>
+    public static IEnumerable<TestScenario> NegativeScenarios(EndpointSpec ep, ApiSpec api)
+    {
+        if (ep.RequestBody is null) yield break;
+
+        var schema = Resolve(ep.RequestBody.Schema, api);
+        if (schema.Properties.Count == 0) yield break;
+
+        var baseline = SchemaSkeleton.BuildObject(ep.RequestBody.Schema, api);
+        if (baseline is null) yield break;
+
+        var pathParams = DummyPathParams(ep);
+
+        // 1) Відсутнє обовʼязкове поле (до 2-х).
+        foreach (var req in schema.Required.Take(2))
+        {
+            var body = new Dictionary<string, object?>(baseline);
+            body.Remove(req);
+            yield return Negative(ep, pathParams, body, $"Missing_{Clean(req)}", $"Відсутнє обовʼязкове поле '{req}'");
+        }
+
+        // 2) Невалідний email (тільки якщо поле справді email).
+        var email = schema.Properties.FirstOrDefault(p => Resolve(p.Value, api).Format == "email");
+        if (email.Key is not null)
+        {
+            var body = new Dictionary<string, object?>(baseline) { [email.Key] = "not-an-email" };
+            yield return Negative(ep, pathParams, body, $"InvalidEmail_{Clean(email.Key)}", $"Невалідний формат email у '{email.Key}'");
+        }
+
+        // 3) Закоротке значення (minLength).
+        var shortField = schema.Properties.FirstOrDefault(p => Resolve(p.Value, api).MinLength is > 0);
+        if (shortField.Key is not null)
+        {
+            var body = new Dictionary<string, object?>(baseline) { [shortField.Key] = "x" };
+            yield return Negative(ep, pathParams, body, $"TooShort_{Clean(shortField.Key)}", $"Закоротке значення '{shortField.Key}'");
+        }
+    }
+
+    private static TestScenario Negative(EndpointSpec ep, Dictionary<string, string> pathParams,
+        Dictionary<string, object?> body, string name, string description) => new()
+    {
+        Name = name,
+        Description = description,
+        Method = ep.Method,
+        Path = ep.Path,
+        PathParams = new Dictionary<string, string>(pathParams),
+        Body = JsonSerializer.SerializeToElement(body),
+        ClientErrorRange = true,
+        Auth = "none",
+        Type = "negative"
+    };
+
+    private static SchemaSpec Resolve(SchemaSpec s, ApiSpec api) =>
+        s.Reference is { } r && api.Schemas.TryGetValue(r, out var t) ? t : s;
+
+    private static string Clean(string s) =>
+        new string(s.Where(char.IsLetterOrDigit).ToArray()) is { Length: > 0 } c
+            ? char.ToUpperInvariant(c[0]) + c[1..] : "Field";
 
     private static Dictionary<string, string> DummyPathParams(EndpointSpec ep) =>
         ep.Parameters

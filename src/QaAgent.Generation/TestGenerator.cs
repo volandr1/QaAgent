@@ -44,12 +44,22 @@ public sealed class TestGenerator
         var json = JsonExtractor.Extract(raw);
         var set = JsonSerializer.Deserialize<ScenarioSet>(json, JsonOptions) ?? new ScenarioSet();
 
+        var index = 1;
         foreach (var s in set.Scenarios)
         {
-            if (string.IsNullOrWhiteSpace(s.Method)) s.Method = endpoint.Method;
-            if (string.IsNullOrWhiteSpace(s.Path)) s.Path = endpoint.Path;
+            // Метод, шлях і ІМʼЯ — детерміновані з ендпоінта (модель лише постачає дані).
+            // Стабільні імена прибирають галюцинації (напр. "GetBooks" для Petstore) і
+            // дають коректний матчинг тестів у Compare між прогонами.
+            s.Method = endpoint.Method;
+            s.Path = endpoint.Path;
             if (string.IsNullOrWhiteSpace(s.Type)) s.Type = defaultType;
             s.Auth = authMode;
+            s.Name = $"{NameBase(endpoint)}_{Cap(s.Type)}_{index++}";
+
+            // Заповнюємо відсутні path-параметри dummy-значенням (для PUT/{id} тощо).
+            foreach (var p in endpoint.Parameters.Where(p => p.In == ParamLocation.Path))
+                if (!s.PathParams.ContainsKey(p.Name))
+                    s.PathParams[p.Name] = "999999999";
 
             // Для negative точний код валідації непередбачуваний → асертимо 4xx-діапазон.
             if (defaultType == "negative") s.ClientErrorRange = true;
@@ -155,6 +165,16 @@ public sealed class TestGenerator
         """);
         return sb.ToString();
     }
+
+    private static string NameBase(EndpointSpec ep)
+    {
+        var seg = ep.Path.Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .LastOrDefault(s => !s.StartsWith('{')) ?? "Endpoint";
+        return Cap(ep.Method.ToLowerInvariant()) + "_" + Cap(seg);
+    }
+
+    private static string Cap(string s) =>
+        string.IsNullOrEmpty(s) ? s : char.ToUpperInvariant(s[0]) + s[1..];
 
     private static string DescribeSchema(SchemaSpec schema, ApiSpec api, string indent)
     {

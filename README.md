@@ -38,7 +38,17 @@ dotnet run --project src/QaAgent.Cli -- <команда> [swaggerUrl]
 | `heal` | Self-healing після зміни API |
 | `agent` | Повний цикл: probe → generate → run → heal → report |
 
-`swaggerUrl` за замовчуванням: `http://localhost:5234/swagger/v1/swagger.json`.
+2-й аргумент — **ім'я вбудованого таргета АБО будь-який Swagger/OpenAPI URL**:
+
+```bash
+dotnet run --project src/QaAgent.Cli -- agent Library
+dotnet run --project src/QaAgent.Cli -- agent Petstore
+dotnet run --project src/QaAgent.Cli -- agent https://any-api.example.com/swagger/v1/swagger.json
+```
+
+Для довільного URL auth-probing і negative-тести вимкнені за замовчуванням (контракт
+невідомий) — генеруються positive (безпечні GET) + boundary. Кожен таргет має власний
+знімок, тести (`generated/ApiTests/Generated/<Target>/`) та звіти.
 
 ## Налаштування (змінні середовища)
 
@@ -46,7 +56,7 @@ dotnet run --project src/QaAgent.Cli -- <команда> [swaggerUrl]
 
 | Змінна | Опис |
 |---|---|
-| `QA_OLLAMA_MODEL` | Модель Ollama (деф. `deepseek-coder-v2:latest`) |
+| `QA_OLLAMA_MODEL` | Модель Ollama (деф. `qwen2.5-coder:7b`) |
 | `QA_OLLAMA_ENDPOINT` | URL Ollama (деф. `http://localhost:11434`) |
 | `API_BASE_URL` | База цільового API для тестів (деф. `http://localhost:5234`) |
 | `TELEGRAM_BOT_TOKEN` | Токен бота (Telegram-звіти) |
@@ -67,6 +77,27 @@ dotnet run --project src/QaAgent.Cli -- agent
 # Звіти: artifacts/reports/latest.md (+ .html)
 ```
 
+## Веб-інтерфейс (Blazor Server)
+
+Зручна панель замість CLI: запуск команд у браузері, живий лог, історія звітів,
+матриця доступу, налаштування.
+
+```bash
+dotnet run --project src/QaAgent.Web --urls http://localhost:5080
+# відкрий http://localhost:5080
+```
+
+Сторінки:
+- **Панель** — кнопки (повний цикл / probe / generate / run / heal) + живий лог + результат.
+- **Звіти** — історія прогонів, перегляд Markdown-звіту.
+- **Ендпоінти** — матриця доступу (зі знімка) + список згенерованих тестів.
+- **Налаштування** — таргет, модель Ollama, Telegram (зберігаються в памʼяті сесії).
+
+На Панелі є поле «**+ Додати API**» — введи будь-який Swagger/OpenAPI URL, і він зʼявиться
+у переліку таргетів.
+
+Логіка спільна з CLI — обидва викликають `QaAgent.App.QaAgentService` in-process.
+
 ## CI/CD (GitHub Actions)
 
 Workflow: `.github/workflows/qa.yml` — запускає повний цикл `agent` за розкладом/пушем,
@@ -76,7 +107,7 @@ Workflow: `.github/workflows/qa.yml` — запускає повний цикл 
 (GitHub-hosted не підходить: немає Ollama/GPU).
 
 Налаштування self-hosted раннера:
-1. Встанови Ollama і витягни модель: `ollama pull deepseek-coder-v2`.
+1. Встанови Ollama і витягни модель: `ollama pull qwen2.5-coder:7b`.
 2. Зареєструй раннер у репозиторії (Settings → Actions → Runners).
 3. Repo **Variables**: `API_BASE_URL`, `QA_OLLAMA_MODEL`, `QA_API_PROJECT` (для seed).
 4. Repo **Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `QA_SMTP_*`, `QA_MAIL_*`, `QA_ADMIN_PASSWORD`.

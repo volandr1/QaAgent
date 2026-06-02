@@ -63,6 +63,9 @@ public sealed class ResponseSpec
 {
     public string StatusCode { get; set; } = string.Empty;
     public string? Description { get; set; }
+
+    /// <summary>Схема тіла відповіді (для розрізнення об'єкт vs масив/колекція).</summary>
+    public SchemaSpec? Schema { get; set; }
 }
 
 /// <summary>
@@ -95,6 +98,9 @@ public sealed class ApiSpec
     public string Title { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public string? SourceUrl { get; set; }
+
+    /// <summary>Базовий URL сервера (з OpenAPI `servers`), напр. https://host/api/v3.</summary>
+    public string? ServerUrl { get; set; }
     public DateTimeOffset CapturedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public List<EndpointSpec> Endpoints { get; set; } = new();

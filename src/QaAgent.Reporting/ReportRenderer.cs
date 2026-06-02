@@ -40,6 +40,13 @@ public static class ReportRenderer
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(r.AiAnalysis))
+        {
+            sb.AppendLine("## 🧠 AI-аналіз");
+            sb.AppendLine(r.AiAnalysis);
+            sb.AppendLine();
+        }
+
         if (r.SchemaChanges.Count > 0)
         {
             sb.AppendLine("## Зміни схеми API");
@@ -108,6 +115,9 @@ public static class ReportRenderer
                     sb.AppendLine($"<p><b>{Esc(f.Name)}</b></p><pre>{Esc(f.ErrorMessage?.Trim() ?? "")}</pre>");
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(r.AiAnalysis))
+            sb.AppendLine($"<h2>🧠 AI-аналіз</h2><p>{Esc(r.AiAnalysis).Replace("\n", "<br>")}</p>");
 
         if (r.SchemaChanges.Count > 0)
             sb.AppendLine("<h2>Зміни схеми API</h2><ul>" +

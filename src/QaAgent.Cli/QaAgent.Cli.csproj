@@ -9,6 +9,7 @@
     <ProjectReference Include="..\QaAgent.Execution\QaAgent.Execution.csproj" />
     <ProjectReference Include="..\QaAgent.Healing\QaAgent.Healing.csproj" />
     <ProjectReference Include="..\QaAgent.Reporting\QaAgent.Reporting.csproj" />
+    <ProjectReference Include="..\QaAgent.App\QaAgent.App.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

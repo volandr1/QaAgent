@@ -3,6 +3,7 @@
     <Project Path="generated/ApiTests/ApiTests.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/QaAgent.App/QaAgent.App.csproj" />
     <Project Path="src/QaAgent.Cli/QaAgent.Cli.csproj" />
     <Project Path="src/QaAgent.Core/QaAgent.Core.csproj" />
     <Project Path="src/QaAgent.Execution/QaAgent.Execution.csproj" />
@@ -12,5 +13,6 @@
     <Project Path="src/QaAgent.Probing/QaAgent.Probing.csproj" />
     <Project Path="src/QaAgent.Reporting/QaAgent.Reporting.csproj" />
     <Project Path="src/QaAgent.Swagger/QaAgent.Swagger.csproj" />
+    <Project Path="src/QaAgent.Web/QaAgent.Web.csproj" />
   </Folder>
 </Solution>

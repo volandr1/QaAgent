@@ -1,0 +1,60 @@
+@page "/endpoints"
+@inject WorkspacePaths Paths
+@inject AgentSettings Settings
+
+<PageTitle>QA-агент · Ендпоінти</PageTitle>
+
+<h1>Ендпоінти та матриця доступу</h1>
+<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+
+@if (_api is null)
+{
+    <p class="muted">Немає знімка. Запусти Probe на панелі, щоб побудувати матрицю доступу.</p>
+}
+else
+{
+    <p class="muted">@_api.Title v@_api.Version · @_api.Endpoints.Count ендпоінтів · знімок від @_api.CapturedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+    <table>
+        <thead><tr><th>Метод</th><th>Шлях</th><th>Доступ</th></tr></thead>
+        <tbody>
+        @foreach (var ep in _api.Endpoints.OrderBy(e => e.Path).ThenBy(e => e.Method))
+        {
+            <tr>
+                <td>@ep.Method</td>
+                <td>@ep.Path</td>
+                <td>@AuthIcon(ep.Auth) @ep.Auth</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <h2>Згенеровані тести (@_tests.Count)</h2>
+    <ul>
+        @foreach (var t in _tests)
+        {
+            <li>@t</li>
+        }
+    </ul>
+}
+
+@code {
+    private ApiSpec? _api;
+    private List<string> _tests = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _api = await new SnapshotStore(Paths.SnapshotFor(Settings.TargetName)).LoadAsync();
+        var genDir = Paths.GeneratedFor(Settings.TargetName);
+        if (Directory.Exists(genDir))
+            _tests = Directory.GetFiles(genDir, "*.cs")
+                .Select(System.IO.Path.GetFileName).OfType<string>().OrderBy(x => x).ToList();
+    }
+
+    private static string AuthIcon(AuthRequirement a) => a switch
+    {
+        AuthRequirement.Anonymous => "🌐",
+        AuthRequirement.Authenticated => "🔑",
+        AuthRequirement.Admin => "👑",
+        _ => "❓"
+    };
+}

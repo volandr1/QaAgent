@@ -35,14 +35,19 @@ public sealed class SelfHealer
     private readonly string _testProject;
     private readonly string _generatedDir;
     private readonly string _resultsDir;
+    private readonly string? _baseUrl;
+    private readonly string? _filter;
 
-    public SelfHealer(LlmClient llm, TestRunner runner, string testProject, string generatedDir, string resultsDir)
+    public SelfHealer(LlmClient llm, TestRunner runner, string testProject, string generatedDir, string resultsDir,
+        string? baseUrl = null, string? filter = null)
     {
         _llm = llm;
         _runner = runner;
         _testProject = testProject;
         _generatedDir = generatedDir;
         _resultsDir = resultsDir;
+        _baseUrl = baseUrl;
+        _filter = filter;
     }
 
     public async Task<HealReport> HealAsync(
@@ -50,7 +55,7 @@ public sealed class SelfHealer
     {
         var report = new HealReport();
 
-        var run = (await _runner.RunAsync(_testProject, _resultsDir, ct)).Run;
+        var run = (await _runner.RunAsync(_testProject, _resultsDir, _baseUrl, _filter, ct)).Run;
         if (run.Success)
         {
             report.StartedGreen = true;
@@ -79,7 +84,7 @@ public sealed class SelfHealer
                 await File.WriteAllTextAsync(file, patched, ct);
             }
 
-            run = (await _runner.RunAsync(_testProject, _resultsDir, ct)).Run;
+            run = (await _runner.RunAsync(_testProject, _resultsDir, _baseUrl, _filter, ct)).Run;
             if (run.Success) break;
         }
 

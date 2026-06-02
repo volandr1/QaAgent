@@ -1,0 +1,98 @@
+@page "/compare"
+@inject WorkspacePaths Paths
+@inject AgentSettings Settings
+
+<PageTitle>QA-агент · Порівняння</PageTitle>
+
+<h1>Порівняння прогонів</h1>
+<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+
+@if (_runs.Count < 2)
+{
+    <p class="muted">Потрібно щонайменше два прогони цього таргета.</p>
+}
+else
+{
+    <div style="display:flex; gap:16px; align-items:flex-end; margin-bottom:12px;">
+        <div>
+            <label>База (раніше)</label>
+            <select @bind="_baseStamp">
+                @foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }
+            </select>
+        </div>
+        <div>
+            <label>Поточний (пізніше)</label>
+            <select @bind="_curStamp">
+                @foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }
+            </select>
+        </div>
+        <button class="primary" @onclick="Compute">Порівняти</button>
+    </div>
+
+    @if (_computed)
+    {
+        <div class="card">
+            <span class="badge fail">⤵ почали падати: @_newlyFailing.Count</span>
+            <span class="badge pass" style="margin-left:8px">⤴ полагодились: @_newlyPassing.Count</span>
+            <span class="badge run" style="margin-left:8px">досі падають: @_stillFailing.Count</span>
+        </div>
+
+        @if (_newlyFailing.Count > 0)
+        {
+            <h2 class="fail">Регресії (почали падати)</h2>
+            <ul>@foreach (var n in _newlyFailing) { <li>@n</li> }</ul>
+        }
+        @if (_newlyPassing.Count > 0)
+        {
+            <h2 class="pass">Полагоджені (почали проходити)</h2>
+            <ul>@foreach (var n in _newlyPassing) { <li>@n</li> }</ul>
+        }
+        @if (_stillFailing.Count > 0)
+        {
+            <h2>Стабільно падають</h2>
+            <ul>@foreach (var n in _stillFailing) { <li>@n</li> }</ul>
+        }
+    }
+}
+
+@code {
+    private List<RunRecord> _runs = new();
+    private string _baseStamp = "";
+    private string _curStamp = "";
+    private bool _computed;
+    private List<string> _newlyFailing = new();
+    private List<string> _newlyPassing = new();
+    private List<string> _stillFailing = new();
+
+    protected override void OnInitialized()
+    {
+        _runs = ReportStore.List(Paths.ReportsFor(Settings.TargetName));
+        if (_runs.Count >= 2) { _curStamp = _runs[0].Stamp; _baseStamp = _runs[1].Stamp; }
+    }
+
+    private string Label(RunRecord r)
+    {
+        var tr = r.Report.TestRun;
+        return $"{r.Report.GeneratedAt.ToLocalTime():MM-dd HH:mm} · {(r.Report.Success ? "PASS" : "FAIL")} · {(tr is null ? "" : $"{tr.Passed}/{tr.Total}")}";
+    }
+
+    private void Compute()
+    {
+        var baseRun = _runs.FirstOrDefault(r => r.Stamp == _baseStamp)?.Report.TestRun;
+        var curRun = _runs.FirstOrDefault(r => r.Stamp == _curStamp)?.Report.TestRun;
+        if (baseRun is null || curRun is null) return;
+
+        bool Failed(QaAgent.Core.TestRun run, string name) =>
+            run.Results.Any(r => r.Name == name && r.Outcome == TestOutcome.Failed);
+        bool Passed(QaAgent.Core.TestRun run, string name) =>
+            run.Results.Any(r => r.Name == name && r.Outcome == TestOutcome.Passed);
+
+        var names = baseRun.Results.Select(r => r.Name)
+            .Union(curRun.Results.Select(r => r.Name)).Distinct().OrderBy(x => x).ToList();
+
+        _newlyFailing = names.Where(n => Passed(baseRun, n) && Failed(curRun, n)).ToList();
+        _newlyPassing = names.Where(n => Failed(baseRun, n) && Passed(curRun, n)).ToList();
+        _stillFailing = names.Where(n => Failed(baseRun, n) && Failed(curRun, n)).ToList();
+        _computed = true;
+    }
+}

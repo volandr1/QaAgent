@@ -1,0 +1,48 @@
+@page "/settings"
+@inject AgentSettings Cfg
+
+<PageTitle>QA-агент · Налаштування</PageTitle>
+
+<h1>Налаштування</h1>
+<p class="muted">Зберігаються в памʼяті застосунку. Telegram-поля застосовуються як env для звітів.</p>
+
+<div class="card" style="max-width:680px">
+    <label>Таргет (API)</label>
+    <select @bind="Cfg.TargetName">
+        @foreach (var t in Cfg.Targets)
+        {
+            <option value="@t.Name">@t.Name — @t.SwaggerUrl</option>
+        }
+    </select>
+
+    <label>Модель Ollama</label>
+    <input type="text" @bind="Cfg.OllamaModel" />
+    <span class="muted">напр. deepseek-coder-v2:latest або qwen2.5-coder:7b</span>
+
+    <label>Ollama endpoint</label>
+    <input type="text" @bind="Cfg.OllamaEndpoint" />
+
+    <label>Telegram bot token</label>
+    <input type="text" @bind="Cfg.TelegramToken" placeholder="не зберігається в репозиторії" />
+
+    <label>Telegram chat id</label>
+    <input type="text" @bind="Cfg.TelegramChatId" />
+
+    <div class="btnrow">
+        <button class="primary" @onclick="Save">Зберегти</button>
+        @if (_saved)
+        {
+            <span class="badge pass">збережено ✓</span>
+        }
+    </div>
+</div>
+
+@code {
+    private bool _saved;
+
+    private void Save()
+    {
+        Cfg.ApplyEnv();
+        _saved = true;
+    }
+}

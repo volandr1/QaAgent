@@ -1,0 +1,80 @@
+@page "/detail/{Target}/{Stamp}"
+@inject WorkspacePaths Paths
+
+<PageTitle>QA-агент · Деталі прогону</PageTitle>
+
+<p><a href="history">← Історія</a></p>
+
+@if (_report is null)
+{
+    <p class="muted">Прогін не знайдено.</p>
+}
+else
+{
+    <h1>
+        <span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span>
+        @_report.ApiTitle v@_report.ApiVersion
+    </h1>
+    <p class="muted">@Target · @_report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+    @if (_report.TestRun is { } tr)
+    {
+        <div class="card">
+            Тести: <b>@tr.Passed/@tr.Total</b> passed · <span class="fail">@tr.Failed failed</span> ·
+            @tr.Skipped skipped · @tr.Duration.TotalSeconds.ToString("F1")s
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_report.AiAnalysis))
+    {
+        <h2>🧠 AI-аналіз</h2>
+        <div class="card" style="white-space:pre-wrap">@_report.AiAnalysis</div>
+    }
+
+    @if (_report.SchemaChanges.Count > 0)
+    {
+        <h2>Зміни схеми</h2>
+        <ul>@foreach (var s in _report.SchemaChanges) { <li>@s</li> }</ul>
+    }
+
+    @if (_report.SelfHealingApplied)
+    {
+        <h2>Self-healing</h2>
+        <p>🩹 @string.Join(", ", _report.HealedFiles)</p>
+    }
+
+    @if (_report.Findings.Count > 0)
+    {
+        <h2>Знахідки</h2>
+        <ul>@foreach (var f in _report.Findings) { <li>[@f.Severity] <b>@f.Title</b> — @f.Detail</li> }</ul>
+    }
+
+    @if (_report.TestRun is { Results.Count: > 0 } run)
+    {
+        <h2>Тести (@run.Results.Count)</h2>
+        <table>
+            <thead><tr><th>Тест</th><th>Результат</th><th>Час</th><th>Помилка</th></tr></thead>
+            <tbody>
+            @foreach (var t in run.Results.OrderBy(x => x.Outcome == TestOutcome.Failed ? 0 : 1).ThenBy(x => x.Name))
+            {
+                <tr>
+                    <td>@t.Name</td>
+                    <td><span class="badge @(t.Outcome == TestOutcome.Passed ? "pass" : t.Outcome == TestOutcome.Failed ? "fail" : "run")">@t.Outcome</span></td>
+                    <td>@t.Duration.TotalMilliseconds.ToString("F0") ms</td>
+                    <td style="max-width:520px"><span class="muted">@(t.ErrorMessage?.Trim())</span></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    [Parameter] public string Target { get; set; } = "";
+    [Parameter] public string Stamp { get; set; } = "";
+
+    private RunReport? _report;
+
+    protected override void OnInitialized() =>
+        _report = ReportStore.Load(Paths.ReportsFor(Target), Stamp);
+}

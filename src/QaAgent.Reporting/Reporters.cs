@@ -25,6 +25,9 @@ public sealed class FileReporter
         File.WriteAllText(Path.Combine(_dir, "latest.md"), md);
         File.WriteAllText(Path.Combine(_dir, "latest.html"), html);
 
+        // Структурований звіт для History/Compare/Detail.
+        ReportStore.Save(_dir, report, stamp);
+
         return (mdPath, htmlPath);
     }
 }

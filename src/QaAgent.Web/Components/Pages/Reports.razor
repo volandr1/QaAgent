@@ -1,0 +1,40 @@
+@page "/history"
+@inject WorkspacePaths Paths
+@inject AgentSettings Settings
+
+<PageTitle>QA-агент · Історія</PageTitle>
+
+<h1>Історія прогонів</h1>
+<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+
+@if (_runs.Count == 0)
+{
+    <p class="muted">Прогонів ще немає. Запусти повний цикл на Панелі.</p>
+}
+else
+{
+    <table>
+        <thead><tr><th>Час</th><th>Статус</th><th>Тести</th><th>Хілінг</th><th>Баги</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in _runs)
+        {
+            var tr = r.Report.TestRun;
+            <tr>
+                <td>@r.Report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td><span class="badge @(r.Report.Success ? "pass" : "fail")">@(r.Report.Success ? "PASS" : "FAIL")</span></td>
+                <td>@(tr is null ? "—" : $"{tr.Passed}/{tr.Total}")</td>
+                <td>@(r.Report.SelfHealingApplied ? $"🩹 {r.Report.HealedFiles.Count}" : "—")</td>
+                <td>@(r.Report.BugCount > 0 ? $"🐞 {r.Report.BugCount}" : "—")</td>
+                <td><a href="@($"detail/{Settings.TargetName}/{r.Stamp}")">деталі →</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<RunRecord> _runs = new();
+
+    protected override void OnInitialized() =>
+        _runs = ReportStore.List(Paths.ReportsFor(Settings.TargetName));
+}

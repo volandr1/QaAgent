@@ -1,0 +1,130 @@
+@page "/"
+@inject AgentSettings Settings
+@inject WorkspacePaths Paths
+
+<PageTitle>QA-агент · Панель</PageTitle>
+
+<h1>Панель керування</h1>
+
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+    <label style="margin:0">Таргет:</label>
+    <select style="width:auto" value="@Settings.TargetName" @onchange="OnTargetChange" disabled="@_running">
+        @foreach (var t in Settings.Targets)
+        {
+            <option value="@t.Name">@t.Name</option>
+        }
+    </select>
+    <span class="muted">@Settings.CurrentTarget.SwaggerUrl · @Settings.OllamaModel</span>
+</div>
+
+<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; max-width:760px;">
+    <input type="text" @bind="_customUrl" placeholder="Будь-який Swagger/OpenAPI URL, напр. https://api.example.com/swagger/v1/swagger.json" disabled="@_running" />
+    <button @onclick="AddCustom" disabled="@_running">+ Додати API</button>
+</div>
+
+<div class="btnrow">
+    <button class="primary" disabled="@_running" @onclick="FullCycle">▶ Повний цикл</button>
+    <button disabled="@_running" @onclick="Probe">Probe</button>
+    <button disabled="@_running" @onclick="Generate">Generate</button>
+    <button disabled="@_running" @onclick="Run">Run</button>
+    <button disabled="@_running" @onclick="Heal">Heal</button>
+    @if (_running)
+    {
+        <span class="badge run">⏳ виконується…</span>
+    }
+</div>
+
+@if (_report is not null)
+{
+    <div class="card">
+        <span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span>
+        @if (_report.TestRun is { } tr)
+        {
+            <span style="margin-left:12px">Тести: <b>@tr.Passed/@tr.Total</b> passed, @tr.Failed failed (@tr.Duration.TotalSeconds.ToString("F1")s)</span>
+        }
+        @if (_report.SelfHealingApplied)
+        {
+            <span style="margin-left:12px">🩹 полагоджено: @_report.HealedFiles.Count</span>
+        }
+        @if (_report.SchemaChanges.Count > 0)
+        {
+            <div class="muted" style="margin-top:8px">Зміни схеми: @string.Join("; ", _report.SchemaChanges)</div>
+        }
+    </div>
+}
+
+<h2>Лог</h2>
+<div class="log">@string.Join("\n", _log)</div>
+
+@code {
+    private readonly List<string> _log = new();
+    private bool _running;
+    private RunReport? _report;
+
+    private string _customUrl = "";
+
+    private void OnTargetChange(ChangeEventArgs e)
+    {
+        Settings.TargetName = e.Value?.ToString() ?? Settings.TargetName;
+        _report = null;
+        _log.Clear();
+    }
+
+    private void AddCustom()
+    {
+        var url = _customUrl.Trim();
+        if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return;
+        Settings.AddCustom(url);
+        _customUrl = "";
+        _report = null;
+        _log.Clear();
+    }
+
+    private void Log(string line)
+    {
+        _log.Add(line);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private Task FullCycle() => RunOp(async svc => _report = await svc.FullCycleAsync(Log));
+
+    private Task Probe() => RunOp(svc => svc.ProbeAsync(Log));
+
+    private Task Generate() => RunOp(async svc =>
+    {
+        var api = await svc.LoadSnapshotAsync();
+        if (api is null) { Log("❌ Немає знімка. Спершу запусти Probe."); return; }
+        await svc.GenerateAsync(api, overwrite: true, log: Log);
+    });
+
+    private Task Run() => RunOp(svc => svc.RunAsync(Log));
+
+    private Task Heal() => RunOp(async svc =>
+    {
+        var (current, diff) = await svc.AnalyzeAsync(Log);
+        await svc.HealAsync(diff, current, Log);
+    });
+
+    private async Task RunOp(Func<QaAgentService, Task> op)
+    {
+        if (_running) return;
+        _running = true;
+        _report = null;
+        _log.Clear();
+        StateHasChanged();
+        try
+        {
+            var svc = Settings.CreateService(Paths);
+            await op(svc);
+        }
+        catch (Exception ex)
+        {
+            Log($"❌ Помилка: {ex.Message}");
+        }
+        finally
+        {
+            _running = false;
+            StateHasChanged();
+        }
+    }
+}

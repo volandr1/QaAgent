@@ -1,0 +1,1599 @@
+{
+  "Title": "FakeRESTApi.Web V1",
+  "Version": "v1",
+  "SourceUrl": "https://fakerestapi.azurewebsites.net/swagger/v1/swagger.json",
+  "ServerUrl": "https://fakerestapi.azurewebsites.net",
+  "CapturedAt": "2026-06-02T17:15:32.511208+00:00",
+  "Endpoints": [
+    {
+      "Method": "DELETE",
+      "Path": "/api/v1/Activities/{id}",
+      "OperationId": null,
+      "Tag": "Activities",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /api/v1/Activities/{id}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/api/v1/Authors/{id}",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /api/v1/Authors/{id}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/api/v1/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /api/v1/Books/{id}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/api/v1/CoverPhotos/{id}",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /api/v1/CoverPhotos/{id}"
+    },
+    {
+      "Method": "DELETE",
+      "Path": "/api/v1/Users/{id}",
+      "OperationId": null,
+      "Tag": "Users",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "DELETE /api/v1/Users/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Activities",
+      "OperationId": null,
+      "Tag": "Activities",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Activity",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Activities"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Activities/{id}",
+      "OperationId": null,
+      "Tag": "Activities",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Activity",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Activities/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Authors",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Author",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Authors"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Authors/authors/books/{idBook}",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "idBook",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Author",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Authors/authors/books/{idBook}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Authors/{id}",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Author",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Authors/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Books",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "Book",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Books"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Book",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Books/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/CoverPhotos",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "CoverPhoto",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/CoverPhotos"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/CoverPhotos/books/covers/{idBook}",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "idBook",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "CoverPhoto",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/CoverPhotos/books/covers/{idBook}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/CoverPhotos/{id}",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "CoverPhoto",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/CoverPhotos/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Users",
+      "OperationId": null,
+      "Tag": "Users",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": "array",
+            "Format": null,
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": {
+              "Type": null,
+              "Format": null,
+              "Reference": "User",
+              "Required": [],
+              "Properties": {},
+              "Items": null,
+              "MinLength": null,
+              "MaxLength": null,
+              "Minimum": null,
+              "Maximum": null,
+              "Enum": null
+            },
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Users"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/v1/Users/{id}",
+      "OperationId": null,
+      "Tag": "Users",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/v1/Users/{id}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/v1/Activities",
+      "OperationId": null,
+      "Tag": "Activities",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Activity",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Activity",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/v1/Activities"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/v1/Authors",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Author",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Author",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/v1/Authors"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/v1/Books",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Book",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/v1/Books"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/v1/CoverPhotos",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "CoverPhoto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "CoverPhoto",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/v1/CoverPhotos"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/v1/Users",
+      "OperationId": null,
+      "Tag": "Users",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "User",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "POST /api/v1/Users"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/v1/Activities/{id}",
+      "OperationId": null,
+      "Tag": "Activities",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Activity",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Activity",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /api/v1/Activities/{id}"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/v1/Authors/{id}",
+      "OperationId": null,
+      "Tag": "Authors",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Author",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "Author",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /api/v1/Authors/{id}"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/v1/Books/{id}",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "Book",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /api/v1/Books/{id}"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/v1/CoverPhotos/{id}",
+      "OperationId": null,
+      "Tag": "CoverPhotos",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "CoverPhoto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": {
+            "Type": null,
+            "Format": null,
+            "Reference": "CoverPhoto",
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /api/v1/CoverPhotos/{id}"
+    },
+    {
+      "Method": "PUT",
+      "Path": "/api/v1/Users/{id}",
+      "OperationId": null,
+      "Tag": "Users",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json; v=1.0",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "User",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "Success",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "PUT /api/v1/Users/{id}"
+    }
+  ],
+  "Schemas": {
+    "Activity": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "title": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "dueDate": {
+          "Type": "string",
+          "Format": "date-time",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "completed": {
+          "Type": "boolean",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "Author": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "idBook": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "firstName": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "lastName": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "Book": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "title": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "description": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "pageCount": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "excerpt": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "publishDate": {
+          "Type": "string",
+          "Format": "date-time",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "CoverPhoto": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "idBook": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "url": {
+          "Type": "string",
+          "Format": "uri",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
+    "User": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "id": {
+          "Type": "integer",
+          "Format": "int32",
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "userName": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        },
+        "password": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    }
+  },
+  "Hash": "26C236922FAA38D8C0A529606F6BFD1C544FF864A65291DC7AEB91507F473BEB"
+}
