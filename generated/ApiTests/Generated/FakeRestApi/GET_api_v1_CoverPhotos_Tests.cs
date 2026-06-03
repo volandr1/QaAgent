@@ -4,18 +4,18 @@ using ApiTests.Infrastructure;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
-namespace ApiTests.Generated.Library;
+namespace ApiTests.Generated.FakeRestApi;
 
 [TestFixture]
-public class GET_api_Books_Tests : ApiTestBase
+public class GET_api_v1_CoverPhotos_Tests : ApiTestBase
 {
 
-    // Retrieving all books should return a successful response with status code 200.
+    // Retrieve cover photos successfully
     [Test]
     [Category("positive")]
-    public async Task Get_Books_Positive_1()
+    public async Task Get_CoverPhotos_Positive_1()
     {
-        var response = await Api.GetAsync("api/Books");
+        var response = await Api.GetAsync("api/v1/CoverPhotos");
         Assert.That((int)response.Status, Is.EqualTo(200),
             $"Очікували 200, отримали {(int)response.Status}: {await response.TextAsync()}");
     }

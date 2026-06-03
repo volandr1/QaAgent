@@ -54,6 +54,18 @@ public abstract class ApiTestBase
         return _clientToken;
     }
 
+    private string? _clientToken2;
+
+    /// <summary>Токен ДРУГОГО незалежного користувача (для IDOR/BOLA — доступ до чужого ресурсу).</summary>
+    protected async Task<string> GetSecondClientTokenAsync()
+    {
+        if (_clientToken2 is not null) return _clientToken2;
+
+        var email = $"qa.client2+{Guid.NewGuid():N}@example.com";
+        _clientToken2 = await RegisterAndLoginAsync(email, "Passw0rd!", register: true);
+        return _clientToken2;
+    }
+
     /// <summary>Токен адміністратора (логін фіксованими seed-кредами).</summary>
     protected async Task<string> GetAdminTokenAsync()
     {

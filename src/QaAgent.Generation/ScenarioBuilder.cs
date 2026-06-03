@@ -159,6 +159,47 @@ public static class ScenarioBuilder
             var body = new Dictionary<string, object?>(baseline) { [shortField.Key] = "x" };
             yield return Negative(ep, pathParams, body, $"TooShort_{Clean(shortField.Key)}", $"Закоротке значення '{shortField.Key}'");
         }
+
+        // 4) Невірний ТИП даних (рядок замість числа/булеана тощо) — до 2-х полів.
+        var typed = schema.Properties
+            .Where(p => baseline.ContainsKey(p.Key))
+            .Select(p => (p.Key, Type: Resolve(p.Value, api).Type))
+            .Where(p => p.Type is "integer" or "number" or "boolean" or "string")
+            .Take(2);
+        foreach (var (key, type) in typed)
+        {
+            object wrong = type switch
+            {
+                "integer" or "number" => "not-a-number", // рядок замість числа
+                "boolean" => "not-a-bool",               // рядок замість булеана
+                _ => 123456                              // число замість рядка
+            };
+            var body = new Dictionary<string, object?>(baseline) { [key] = wrong };
+            yield return Negative(ep, pathParams, body, $"WrongType_{Clean(key)}", $"Невірний тип даних у полі '{key}'");
+        }
+
+        // 5) null у обовʼязковому полі — до 2-х полів (відрізняється від «поле відсутнє»).
+        foreach (var req in schema.Required.Where(baseline.ContainsKey).Take(2))
+        {
+            var body = new Dictionary<string, object?>(baseline) { [req] = null };
+            yield return Negative(ep, pathParams, body, $"NullRequired_{Clean(req)}", $"null у обовʼязковому полі '{req}'");
+        }
+
+        // 6) Вихід за числові межі minimum/maximum.
+        foreach (var p in schema.Properties.Where(p => baseline.ContainsKey(p.Key)))
+        {
+            var t = Resolve(p.Value, api);
+            if (t.Minimum is { } min)
+            {
+                var body = new Dictionary<string, object?>(baseline) { [p.Key] = min - 1 };
+                yield return Negative(ep, pathParams, body, $"BelowMin_{Clean(p.Key)}", $"Значення нижче minimum у '{p.Key}'");
+            }
+            if (t.Maximum is { } max)
+            {
+                var body = new Dictionary<string, object?>(baseline) { [p.Key] = max + 1 };
+                yield return Negative(ep, pathParams, body, $"AboveMax_{Clean(p.Key)}", $"Значення вище maximum у '{p.Key}'");
+            }
+        }
     }
 
     private static TestScenario Negative(EndpointSpec ep, Dictionary<string, string> pathParams,

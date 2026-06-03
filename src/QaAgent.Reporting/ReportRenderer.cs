@@ -40,6 +40,20 @@ public static class ReportRenderer
             }
         }
 
+        if (r.Coverage is { } cov)
+        {
+            sb.AppendLine("## Покриття");
+            sb.AppendLine($"- Ендпоінтів покрито: **{cov.CoveredEndpoints}/{cov.TotalEndpoints}** ({cov.Percent}%)");
+            if (cov.ByType.Count > 0)
+                sb.AppendLine($"- Сценарії: {string.Join(", ", cov.ByType.OrderByDescending(k => k.Value).Select(k => $"{k.Value} {k.Key}"))}");
+            if (cov.Uncovered.Count > 0)
+            {
+                sb.AppendLine($"- Без тестів ({cov.Uncovered.Count}):");
+                foreach (var s in cov.Uncovered) sb.AppendLine($"  - `{s}`");
+            }
+            sb.AppendLine();
+        }
+
         if (!string.IsNullOrWhiteSpace(r.AiAnalysis))
         {
             sb.AppendLine("## 🧠 AI-аналіз");
@@ -80,6 +94,8 @@ public static class ReportRenderer
         sb.AppendLine($"{(r.Success ? "✅" : "❌")} QA-агент — {r.ApiTitle} v{r.ApiVersion}");
         if (r.TestRun is { } tr)
             sb.AppendLine($"Тести: {tr.Passed}/{tr.Total} passed, {tr.Failed} failed ({tr.Duration.TotalSeconds:F1}s)");
+        if (r.Coverage is { } cov)
+            sb.AppendLine($"Покриття: {cov.CoveredEndpoints}/{cov.TotalEndpoints} ендпоінтів ({cov.Percent}%)");
         if (r.SchemaChanges.Count > 0)
             sb.AppendLine($"Зміни схеми: {r.SchemaChanges.Count}");
         if (r.SelfHealingApplied && r.HealedFiles.Count > 0)
@@ -114,6 +130,18 @@ public static class ReportRenderer
                 foreach (var f in tr.Failures)
                     sb.AppendLine($"<p><b>{Esc(f.Name)}</b></p><pre>{Esc(f.ErrorMessage?.Trim() ?? "")}</pre>");
             }
+        }
+
+        if (r.Coverage is { } cov)
+        {
+            sb.AppendLine("<h2>Покриття</h2>");
+            sb.AppendLine($"<p>Ендпоінтів покрито: <b>{cov.CoveredEndpoints}/{cov.TotalEndpoints}</b> ({cov.Percent}%)</p>");
+            if (cov.ByType.Count > 0)
+                sb.AppendLine("<p>Сценарії: " +
+                    string.Join(", ", cov.ByType.OrderByDescending(k => k.Value).Select(k => $"{k.Value} {Esc(k.Key)}")) + "</p>");
+            if (cov.Uncovered.Count > 0)
+                sb.AppendLine($"<p>Без тестів ({cov.Uncovered.Count}):</p><ul>" +
+                    string.Concat(cov.Uncovered.Select(s => $"<li><code>{Esc(s)}</code></li>")) + "</ul>");
         }
 
         if (!string.IsNullOrWhiteSpace(r.AiAnalysis))

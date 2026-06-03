@@ -3,7 +3,7 @@
   "Version": "1.0",
   "SourceUrl": "http://localhost:5234/swagger/v1/swagger.json",
   "ServerUrl": "http://localhost:5234",
-  "CapturedAt": "2026-06-02T21:38:07.2740764+00:00",
+  "CapturedAt": "2026-06-03T19:29:04.6111924+00:00",
   "Endpoints": [
     {
       "Method": "DELETE",
@@ -172,6 +172,24 @@
     },
     {
       "Method": "GET",
+      "Path": "/api/Books/stats",
+      "OperationId": null,
+      "Tag": "Books",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK",
+          "Schema": null
+        }
+      ],
+      "Auth": "Anonymous",
+      "Signature": "GET /api/Books/stats"
+    },
+    {
+      "Method": "GET",
       "Path": "/api/Books/{id}",
       "OperationId": null,
       "Tag": "Books",
@@ -206,6 +224,43 @@
       ],
       "Auth": "Anonymous",
       "Signature": "GET /api/Books/{id}"
+    },
+    {
+      "Method": "GET",
+      "Path": "/api/Notes/{id}",
+      "OperationId": null,
+      "Tag": "Notes",
+      "Summary": null,
+      "Parameters": [
+        {
+          "Name": "id",
+          "In": "Path",
+          "Required": true,
+          "Schema": {
+            "Type": "integer",
+            "Format": "int32",
+            "Reference": null,
+            "Required": [],
+            "Properties": {},
+            "Items": null,
+            "MinLength": null,
+            "MaxLength": null,
+            "Minimum": null,
+            "Maximum": null,
+            "Enum": null
+          }
+        }
+      ],
+      "RequestBody": null,
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK",
+          "Schema": null
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "GET /api/Notes/{id}"
     },
     {
       "Method": "POST",
@@ -382,6 +437,40 @@
       ],
       "Auth": "Authenticated",
       "Signature": "POST /api/Books/take/{bookId}"
+    },
+    {
+      "Method": "POST",
+      "Path": "/api/Notes",
+      "OperationId": null,
+      "Tag": "Notes",
+      "Summary": null,
+      "Parameters": [],
+      "RequestBody": {
+        "Required": false,
+        "ContentType": "application/json",
+        "Schema": {
+          "Type": null,
+          "Format": null,
+          "Reference": "NoteDto",
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Responses": [
+        {
+          "StatusCode": "200",
+          "Description": "OK",
+          "Schema": null
+        }
+      ],
+      "Auth": "Authenticated",
+      "Signature": "POST /api/Notes"
     },
     {
       "Method": "PUT",
@@ -623,6 +712,33 @@
       "Maximum": null,
       "Enum": null
     },
+    "NoteDto": {
+      "Type": "object",
+      "Format": null,
+      "Reference": null,
+      "Required": [],
+      "Properties": {
+        "text": {
+          "Type": "string",
+          "Format": null,
+          "Reference": null,
+          "Required": [],
+          "Properties": {},
+          "Items": null,
+          "MinLength": null,
+          "MaxLength": null,
+          "Minimum": null,
+          "Maximum": null,
+          "Enum": null
+        }
+      },
+      "Items": null,
+      "MinLength": null,
+      "MaxLength": null,
+      "Minimum": null,
+      "Maximum": null,
+      "Enum": null
+    },
     "RegisterDto": {
       "Type": "object",
       "Format": null,
@@ -667,5 +783,5 @@
       "Enum": null
     }
   },
-  "Hash": "A52104F196C3C74C13F973715519314C2F950375F919C960A563E33562F4E6A6"
+  "Hash": "B0ABF52E16043CABD07CE418B6B8E4838C2BAFD2F17274314D08760ABD55FDC1"
 }

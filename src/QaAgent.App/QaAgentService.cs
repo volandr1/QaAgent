@@ -138,6 +138,34 @@ public sealed class QaAgentService
             total += scenarios.Count;
         }
 
+        // Auth-ендпоінти (login/register) — це ДІЇ, а не ресурси: окреме покриття
+        // (positive: register+login → 2xx + токен; negative: невірний пароль/юзер → 401).
+        // Лише коли контракт авторизації відомий (ProbeAuth + AuthConfig).
+        if (_target is { ProbeAuth: true, Auth: not null })
+        {
+            var ac = _target.Auth;
+            static string Norm(string p) => "/" + p.Trim('/');
+            var loginEp = api.Endpoints.FirstOrDefault(e =>
+                e.Method == "POST" && Norm(e.Path).Equals(Norm(ac.LoginPath), StringComparison.OrdinalIgnoreCase));
+
+            if (loginEp is not null)
+            {
+                var file = Path.Combine(GeneratedDir, "Auth_Tests.cs");
+                if (overwrite || !File.Exists(file))
+                {
+                    var hasRegister = api.Endpoints.Any(e =>
+                        e.Method == "POST" && Norm(e.Path).Equals(Norm(ac.RegisterPath), StringComparison.OrdinalIgnoreCase));
+                    var code = renderer.RenderAuthTests(Namespace,
+                        Norm(ac.RegisterPath).TrimStart('/'), Norm(ac.LoginPath).TrimStart('/'),
+                        ac.EmailField, ac.PasswordField, ac.TokenField, ac.Password, hasRegister);
+                    await File.WriteAllTextAsync(file, code, ct);
+                    var n = hasRegister ? 4 : 2;
+                    logf($"• auth login/register → {n} тест(ів)");
+                    files++; total += n;
+                }
+            }
+        }
+
         // CRUD round-trip (стейтовий): для ресурсів POST + GET/{id} (+DELETE/{id}).
         if (_target.CoverWrites)
         {
@@ -165,6 +193,21 @@ public sealed class QaAgentService
                 await File.WriteAllTextAsync(file, code, ct);
                 logf($"• round-trip {LastSegment(basePath)}");
                 files++; total++;
+
+                // IDOR/BOLA: ресурс створюється під авторизацією (має власника) і читання за id
+                // вимагає авторизації (owner-scoped). Публічні (anon) і суто рольові (Admin) — пропускаємо.
+                if (createEp.Auth != AuthRequirement.Anonymous && byId.Auth == AuthRequirement.Authenticated)
+                {
+                    var idorFile = Path.Combine(GeneratedDir, $"{LastSegment(basePath)}_Security_Tests.cs");
+                    if (overwrite || !File.Exists(idorFile))
+                    {
+                        var idorCode = renderer.RenderIdor(Namespace, LastSegment(basePath),
+                            basePath.TrimStart('/'), ToInterpolatedById(byId), body, TokenFor(createEp.Auth));
+                        await File.WriteAllTextAsync(idorFile, idorCode, ct);
+                        logf($"• security(IDOR) {LastSegment(basePath)}");
+                        files++; total++;
+                    }
+                }
             }
         }
 
@@ -256,7 +299,8 @@ public sealed class QaAgentService
         return report;
     }
 
-    public async Task<RunReport> FullCycleAsync(Action<string>? log = null, CancellationToken ct = default)
+    public async Task<RunReport> FullCycleAsync(Action<string>? log = null, CancellationToken ct = default,
+        bool autoHeal = true, bool notifyTelegram = true)
     {
         var logf = Safe(log);
         var store = new SnapshotStore(Snapshot);
@@ -293,10 +337,11 @@ public sealed class QaAgentService
             logf($"   нових файлів: {files}, прибрано застарілих: {removed}");
         }
 
-        logf("4) Прогін" + (diff.HasChanges && previous is not null ? " + self-healing..." : "..."));
+        var doHeal = autoHeal && diff.HasChanges && previous is not null;
+        logf("4) Прогін" + (doHeal ? " + self-healing..." : "..."));
         TestRun finalRun;
         HealReport? heal = null;
-        if (diff.HasChanges && previous is not null)
+        if (doHeal)
         {
             heal = await HealAsync(diff, current, logf, ct);
             finalRun = heal.FinalRun!;
@@ -309,6 +354,7 @@ public sealed class QaAgentService
         // На baseline не засмічуємо звіт «усі ендпоінти додані».
         var reportDiff = previous is null ? new ApiDiff() : diff;
         var report = BuildReport(current, reportDiff, finalRun, heal);
+        report.Coverage = CoverageAnalyzer.Compute(current, GeneratedDir, _target);
 
         logf("5) AI-аналіз результатів...");
         try
@@ -319,7 +365,7 @@ public sealed class QaAgentService
         catch (Exception ex) { logf($"   ⚠️ AI-аналіз недоступний: {ex.Message}"); }
 
         logf("6) Звіт...");
-        foreach (var l in await new ReportDispatcher(Reports).DispatchAsync(report, ct)) logf(l);
+        foreach (var l in await new ReportDispatcher(Reports).DispatchAsync(report, ct, notifyTelegram)) logf(l);
 
         await store.SaveAsync(current, ct);
         return report;

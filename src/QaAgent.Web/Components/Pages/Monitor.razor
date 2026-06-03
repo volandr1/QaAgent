@@ -1,65 +1,217 @@
 @page "/monitor"
 @implements IDisposable
 @inject SchemaMonitor Mon
+@inject AgentSettings Settings
 
 <PageTitle>QA-агент · Моніторинг</PageTitle>
 
-<h1>Фоновий моніторинг Swagger</h1>
-<p class="muted">
-    Агент періодично опитує схему кожного таргета і — лише при зміні ендпоінтів —
-    автоматично перегенеровує тести, запускає їх і надсилає звіт.
-</p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="radar" Size="16" /></span><span>route /monitor</span></div>
+        <h1>Фоновий моніторинг</h1>
+        <p class="sub">Агент автоматично стежить за Swagger-схемою та перезапускає тести при змінах API.</p>
+    </div>
+    <button class="mon-switch @(Mon.Enabled ? "on" : "")" @onclick="Toggle">
+        <div class="lab">
+            <div class="k">МОНІТОРИНГ</div>
+            <div class="v">@(Mon.Enabled ? "АКТИВНО" : "ВИМКНЕНО")</div>
+        </div>
+        <span class="track"><span class="thumb"></span></span>
+    </button>
+</div>
 
-<div class="card" style="max-width:680px">
-    <label style="display:flex; align-items:center; gap:8px;">
-        <input type="checkbox" style="width:auto" checked="@Mon.Enabled" @onchange="Toggle" />
-        Увімкнути моніторинг
-    </label>
+<div class="mon-strip">
+    <div class="mon-cell">
+        <span class="radar @(Mon.Enabled ? "on" : "")"><Icon Name="radar" Size="22" /></span>
+        <div>
+            <div class="k">стан</div>
+            <div class="v" style="color:@(Mon.Enabled ? "var(--ai-2)" : "var(--text-2)")">@(Mon.Enabled ? (Mon.Busy ? "RUNNING" : "ACTIVE") : "OFF")</div>
+            <div class="s">@(Mon.Enabled ? $"кожні {IntervalLabel}" : "натисніть, щоб увімкнути")</div>
+        </div>
+    </div>
+    <div class="mon-cell">
+        <div>
+            <div class="k">ціль</div>
+            <div class="v mono" style="font-size:16px">@Settings.TargetName</div>
+            <div class="s mono">@HostOf(Settings.CurrentTarget.SwaggerUrl)</div>
+        </div>
+    </div>
+    <div class="mon-cell">
+        <div>
+            <div class="k">наступна перевірка</div>
+            @if (Mon.Enabled && Mon.Busy)
+            {
+                <div class="v" style="color:var(--ai-2)">перевіряється…</div>
+                <div class="s">виконується цикл</div>
+            }
+            else if (Mon.Enabled && Mon.NextCheckAt is { } nc)
+            {
+                <div class="v">@Until(nc)</div>
+                <div class="s">о @nc.ToLocalTime().ToString("HH:mm")</div>
+            }
+            else
+            {
+                <div class="v" style="color:var(--text-3)">—</div>
+                <div class="s">моніторинг вимкнено</div>
+            }
+        </div>
+    </div>
+    <div class="mon-cell">
+        <div>
+            <div class="k">останній результат</div>
+            @if (Mon.LastResult?.TestRun is { } tr)
+            {
+                <div class="v" style="color:@(Mon.LastResult.Success ? "var(--pass)" : "var(--fail)")">@tr.Passed/@tr.Total</div>
+                <div class="s">@(Mon.LastResult.Success ? "PASS" : "FAIL") · @tr.Duration.ToString(@"mm\:ss")</div>
+            }
+            else
+            {
+                <div class="v" style="color:var(--text-3)">—</div>
+                <div class="s">ще не запускався</div>
+            }
+        </div>
+    </div>
+</div>
 
-    <label>Інтервал перевірки (секунд, мін. 15)</label>
-    <input type="number" min="15" @bind="Mon.IntervalSeconds" style="width:120px" />
+<div class="grid-2">
+    <div class="card">
+        <div class="card-h"><Icon Name="gear" Size="15" /> Конфігурація</div>
 
-    <div style="margin-top:12px">
-        <span class="badge @(Mon.Enabled ? (Mon.Busy ? "run" : "pass") : "fail")">
-            @(Mon.Enabled ? (Mon.Busy ? "⏳ перевіряє…" : "● увімкнено") : "○ вимкнено")
-        </span>
-        @if (Mon.LastCheck is { } lc)
+        <label class="mon-lbl">Інтервал перевірки</label>
+        <div class="seg">
+            <button class="@(Mon.IntervalSeconds == 300 ? "active" : "")" @onclick="@(() => Mon.IntervalSeconds = 300)">5 хв</button>
+            <button class="@(Mon.IntervalSeconds == 900 ? "active" : "")" @onclick="@(() => Mon.IntervalSeconds = 900)">15 хв</button>
+            <button class="@(Mon.IntervalSeconds == 3600 ? "active" : "")" @onclick="@(() => Mon.IntervalSeconds = 3600)">1 год</button>
+            <button class="@(IsCustomInterval ? "active" : "")" @onclick="@(() => _showCustom = true)">Свій</button>
+        </div>
+        @if (_showCustom || IsCustomInterval)
         {
-            <span class="muted" style="margin-left:10px">остання перевірка: @lc.ToLocalTime().ToString("HH:mm:ss")</span>
+            <div class="mon-custom">
+                <span>кожні</span>
+                <input type="number" min="1" step="1" value="@CustomValue" @onchange="OnCustomInterval" />
+                <div class="seg sm">
+                    <button class="@(_customUnit == "min" ? "active" : "")" @onclick="@(() => SetUnit("min"))">хв</button>
+                    <button class="@(_customUnit == "sec" ? "active" : "")" @onclick="@(() => SetUnit("sec"))">сек</button>
+                </div>
+            </div>
+            <div class="hint">мінімум 15 секунд</div>
+        }
+
+        <label class="mon-lbl">Swagger URL</label>
+        <input type="text" readonly value="@Settings.CurrentTarget.SwaggerUrl" />
+
+        <div style="margin-top:14px">
+            <div class="mon-row">
+                <span>Запускати тести при зміні</span>
+                <button class="tgl @(Mon.RunTestsOnChange ? "on" : "")" @onclick="@(() => Mon.RunTestsOnChange = !Mon.RunTestsOnChange)"><span class="thumb"></span></button>
+            </div>
+            <div class="mon-row">
+                <span>Telegram-сповіщення</span>
+                <button class="tgl @(Mon.NotifyTelegram ? "on" : "")" @onclick="@(() => Mon.NotifyTelegram = !Mon.NotifyTelegram)"><span class="thumb"></span></button>
+            </div>
+            <div class="mon-row">
+                <span>Авто-heal зламаних тестів</span>
+                <button class="tgl @(Mon.AutoHeal ? "on" : "")" @onclick="@(() => Mon.AutoHeal = !Mon.AutoHeal)"><span class="thumb"></span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+        <div class="feed-head">
+            <span class="card-h" style="margin:0"><Icon Name="clock" Size="15" /> Стрічка подій</span>
+            <span class="muted" style="font-size:12px">@(Mon.Events.Count > 0 ? "сьогодні" : "")</span>
+        </div>
+        @if (Mon.Events.Count == 0)
+        {
+            <div class="log-empty" style="height:200px"><div><div class="muted">Подій ще немає</div><div class="muted" style="font-size:12px;margin-top:4px">Увімкніть моніторинг, щоб почати стеження</div></div></div>
+        }
+        else
+        {
+            <div class="feed">
+                @{ var first = true; }
+                @foreach (var e in Mon.Events)
+                {
+                    var (title, icon, cls) = Classify(e);
+                    var isNow = first && Mon.Enabled;
+                    <div class="feed-item @(isNow ? "now" : "")">
+                        <span class="ico @cls"><Icon Name="@icon" Size="13" /></span>
+                        <div style="flex:1">
+                            <div><span class="ttl">@title</span><span class="tm">@e.Time.ToLocalTime().ToString("HH:mm")</span>@if (isNow) { <span class="now-badge">NOW</span> }</div>
+                            <div class="sub">@Clean(e.Message)</div>
+                        </div>
+                    </div>
+                    first = false;
+                }
+            </div>
         }
     </div>
 </div>
 
-<h2>Журнал подій</h2>
-@if (Mon.Events.Count == 0)
-{
-    <p class="muted">Подій ще немає.</p>
-}
-else
-{
-    <table>
-        <thead><tr><th>Час</th><th>Таргет</th><th>Подія</th></tr></thead>
-        <tbody>
-        @foreach (var e in Mon.Events)
-        {
-            <tr style="@(e.Important ? "font-weight:600" : "")">
-                <td style="white-space:nowrap">@e.Time.ToLocalTime().ToString("HH:mm:ss")</td>
-                <td>@e.Target</td>
-                <td>@e.Message</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-
 @code {
     private Timer? _timer;
-
-    protected override void OnInitialized() =>
-        _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, 2000, 2000);
-
-    private void Toggle(ChangeEventArgs e) =>
-        Mon.Enabled = e.Value is true;
-
+    protected override void OnInitialized() => _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, 1000, 1000);
     public void Dispose() => _timer?.Dispose();
+
+    private void Toggle() => Mon.SetEnabled(!Mon.Enabled);
+
+    private bool _showCustom;
+    private string _customUnit = "min";
+    private bool IsCustomInterval => Mon.IntervalSeconds is not (300 or 900 or 3600);
+    private int CustomValue => _customUnit == "sec" ? Mon.IntervalSeconds : Math.Max(1, Mon.IntervalSeconds / 60);
+
+    private void OnCustomInterval(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var v) && v >= 1)
+        {
+            var sec = _customUnit == "sec" ? v : v * 60;
+            Mon.IntervalSeconds = Math.Max(15, sec);
+        }
+        _showCustom = true;
+    }
+
+    private void SetUnit(string unit) { _customUnit = unit; _showCustom = true; }
+
+    private string IntervalLabel => Mon.IntervalSeconds switch
+    {
+        300 => "5 хв",
+        900 => "15 хв",
+        3600 => "1 год",
+        var s when s % 3600 == 0 => $"{s / 3600} год",
+        var s when s % 60 == 0 => $"{s / 60} хв",
+        var s => $"{s} с"
+    };
+
+    private static string Until(DateTimeOffset at)
+    {
+        var d = at - DateTimeOffset.Now;
+        if (d.TotalSeconds < 1) return "ось-ось";
+        if (d.TotalMinutes >= 1) return $"за {(int)Math.Ceiling(d.TotalMinutes)} хв";
+        return $"за {(int)Math.Ceiling(d.TotalSeconds)} с";
+    }
+
+    private static string HostOf(string url)
+    {
+        try { return new Uri(url).Host; } catch { return url; }
+    }
+
+    // Класифікує подію у заголовок + іконку + клас (для таймлайну як у дизайні).
+    private static (string Title, string Icon, string Cls) Classify(MonitorEvent e)
+    {
+        var m = e.Message;
+        if (m.Contains("ЗМІНА", StringComparison.OrdinalIgnoreCase) || m.Contains("⚠️"))
+            return ("Swagger змінено", "warn", "warn");
+        if (m.Contains("FAIL", StringComparison.OrdinalIgnoreCase) || m.Contains("❌"))
+            return ("Тести впали", "x", "fail");
+        if (m.Contains("PASS", StringComparison.OrdinalIgnoreCase) || m.Contains("✅") || m.Contains("baseline готово", StringComparison.OrdinalIgnoreCase))
+            return ("Тести пройдено", "check", "ok");
+        if (m.Contains("baseline", StringComparison.OrdinalIgnoreCase) || m.Contains("запуск", StringComparison.OrdinalIgnoreCase) || m.Contains("аналіз", StringComparison.OrdinalIgnoreCase))
+            return ("Агент почав аналіз", "generate", "code");
+        if (m.Contains("без змін", StringComparison.OrdinalIgnoreCase))
+            return ("Перевірка схеми", "dot", "");
+        if (m.Contains("недоступн", StringComparison.OrdinalIgnoreCase) || m.Contains("помилка", StringComparison.OrdinalIgnoreCase))
+            return ("Ціль недоступна", "warn", "warn");
+        return ("Монітор", "dot", "");
+    }
+
+    private static string Clean(string m) => m.TrimStart('⚠', '️', '✅', '❌', ' ');
 }

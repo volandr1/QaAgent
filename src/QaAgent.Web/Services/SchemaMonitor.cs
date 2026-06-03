@@ -19,9 +19,18 @@ public sealed class SchemaMonitor : BackgroundService
     private readonly List<MonitorEvent> _events = new();
 
     public bool Enabled { get; set; }
-    public int IntervalSeconds { get; set; } = 60;
+    public int IntervalSeconds { get; set; } = 900;
     public DateTimeOffset? LastCheck { get; private set; }
+    public DateTimeOffset? NextCheckAt { get; private set; }
     public bool Busy { get; private set; }
+
+    /// <summary>Перемикачі з UI.</summary>
+    public bool RunTestsOnChange { get; set; } = true;
+    public bool NotifyTelegram { get; set; } = true;
+    public bool AutoHeal { get; set; } = true;
+
+    /// <summary>Останній результат прогону (для картки «останній результат»).</summary>
+    public RunReport? LastResult { get; private set; }
 
     public SchemaMonitor(WorkspacePaths paths, AgentSettings settings)
     {
@@ -34,19 +43,39 @@ public sealed class SchemaMonitor : BackgroundService
         get { lock (_gate) return _events.AsEnumerable().Reverse().ToList(); }
     }
 
+    /// <summary>Вмикає/вимикає моніторинг і одразу планує наступну перевірку (для UI).</summary>
+    public void SetEnabled(bool on)
+    {
+        Enabled = on;
+        NextCheckAt = on ? DateTimeOffset.Now.AddSeconds(Math.Max(15, IntervalSeconds)) : null;
+    }
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         Log("monitor", "Монітор запущено (очікує ввімкнення).", false);
+        // Тикаємо часто й порівнюємо з NextCheckAt — так відлік на UI і реальний
+        // запуск завжди синхронні (не «застрягає» на 0, коли час вийшов).
         while (!ct.IsCancellationRequested)
         {
-            if (Enabled && !Busy)
+            if (Enabled)
             {
-                Busy = true;
-                try { await CheckAllAsync(ct); }
-                catch (Exception ex) { Log("monitor", $"помилка циклу: {ex.Message}", true); }
-                finally { Busy = false; }
+                NextCheckAt ??= DateTimeOffset.Now.AddSeconds(Math.Max(15, IntervalSeconds));
+
+                if (!Busy && DateTimeOffset.Now >= NextCheckAt)
+                {
+                    Busy = true;
+                    try { await CheckAllAsync(ct); }
+                    catch (Exception ex) { Log("monitor", $"помилка циклу: {ex.Message}", true); }
+                    finally
+                    {
+                        Busy = false;
+                        NextCheckAt = DateTimeOffset.Now.AddSeconds(Math.Max(15, IntervalSeconds));
+                    }
+                }
             }
-            try { await Task.Delay(TimeSpan.FromSeconds(Math.Max(15, IntervalSeconds)), ct); }
+            else NextCheckAt = null;
+
+            try { await Task.Delay(TimeSpan.FromSeconds(2), ct); }
             catch (TaskCanceledException) { break; }
         }
     }
@@ -70,17 +99,29 @@ public sealed class SchemaMonitor : BackgroundService
                 if (snapshot is null)
                 {
                     Log(target.Name, "baseline — знімка немає, встановлюю та тестую…", true);
-                    var r = await svc.FullCycleAsync(null, ct);
+                    var r = await svc.FullCycleAsync(null, ct, AutoHeal, NotifyTelegram);
+                    LastResult = r;
                     Log(target.Name, $"baseline готово: {Summary(r)}", true);
                 }
                 else if (snapshot.Hash != current.Hash)
                 {
                     var diff = DiffEngine.Diff(snapshot, current);
-                    Log(target.Name, $"⚠️ ЗМІНА схеми: {DescribeDiff(diff)} → запускаю тести…", true);
-                    var r = await svc.FullCycleAsync(null, ct);
-                    Log(target.Name, $"результат: {Summary(r)}", true);
+                    if (RunTestsOnChange)
+                    {
+                        Log(target.Name, $"⚠️ ЗМІНА схеми: {DescribeDiff(diff)} → запускаю тести…", true);
+                        var r = await svc.FullCycleAsync(null, ct, AutoHeal, NotifyTelegram);
+                        LastResult = r;
+                        Log(target.Name, $"результат: {Summary(r)}", true);
+                    }
+                    else
+                    {
+                        Log(target.Name, $"⚠️ ЗМІНА схеми: {DescribeDiff(diff)} (автозапуск тестів вимкнено)", true);
+                    }
                 }
-                // інакше — без змін, тихо.
+                else
+                {
+                    Log(target.Name, "перевірка схеми: без змін", false);
+                }
             }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex)

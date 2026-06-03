@@ -1,11 +1,15 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d1117" />
     <base href="/" />
     <ResourcePreloader />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["QaAgent.Web.styles.css"]" />
     <ImportMap />
@@ -15,6 +19,16 @@
 <body>
     <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
+    <script>
+        window.qaDownload = (fileName, base64, mime) => {
+            const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+            const blob = new Blob([bytes], { type: mime || 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = fileName; document.body.appendChild(a);
+            a.click(); a.remove(); URL.revokeObjectURL(url);
+        };
+    </script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

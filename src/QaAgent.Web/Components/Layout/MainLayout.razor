@@ -1,24 +1,81 @@
 @inherits LayoutComponentBase
+@inject AgentSettings Settings
+@inject NavigationManager Nav
+@implements IDisposable
 
 <div class="app">
-    <header class="topbar">
-        <span class="brand">🤖 QA-агент</span>
-        <nav>
-            <NavLink href="" Match="NavLinkMatch.All">Панель</NavLink>
-            <NavLink href="history">Історія</NavLink>
-            <NavLink href="compare">Порівняти</NavLink>
-            <NavLink href="monitor">Моніторинг</NavLink>
-            <NavLink href="endpoints">Ендпоінти</NavLink>
-            <NavLink href="settings">Налаштування</NavLink>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo"><i></i></div>
+            <div>
+                <div class="name">Qa<span>Agent</span></div>
+                <div class="tag">AUTONOMOUS QA</div>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <NavLink href="" Match="NavLinkMatch.All"><span class="ic"><Icon Name="terminal" /></span><span>Панель</span></NavLink>
+            <NavLink href="history"><span class="ic"><Icon Name="clock" /></span><span>Історія</span></NavLink>
+            <NavLink href="compare"><span class="ic"><Icon Name="compare" /></span><span>Порівняння</span></NavLink>
+            <NavLink href="details"><span class="ic"><Icon Name="file" /></span><span>Деталі</span></NavLink>
+            <NavLink href="monitor"><span class="ic"><Icon Name="radar" /></span><span>Моніторинг</span></NavLink>
+            <NavLink href="endpoints"><span class="ic"><Icon Name="nodes" /></span><span>Ендпоінти</span></NavLink>
+            <NavLink href="settings"><span class="ic"><Icon Name="gear" /></span><span>Налаштування</span></NavLink>
         </nav>
-    </header>
-    <main>
-        @Body
-    </main>
+
+        <div class="agent-card">
+            <div class="hd"><i></i> Агент онлайн</div>
+            <div class="row"><span>model</span><b class="mono">@Settings.OllamaModel</b></div>
+            <div class="row"><span>host</span><b class="mono">@HostShort</b></div>
+        </div>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <span class="crumb">QaAgent</span>
+            <span style="color:var(--text-3)"><Icon Name="chevron" Size="13" /></span>
+            <span class="crumb cur">@CurrentTitle</span>
+            <div style="flex:1"></div>
+        </header>
+
+        <main class="page-enter">
+            @Body
+        </main>
+    </div>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    Сталася помилка. <a href="." class="reload">Перезавантажити</a> <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private string CurrentTitle = "Панель";
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        UpdateTitle();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) { UpdateTitle(); InvokeAsync(StateHasChanged); }
+
+    private void UpdateTitle()
+    {
+        var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?')[0].TrimEnd('/').ToLowerInvariant();
+        CurrentTitle = path switch
+        {
+            "" => "Панель",
+            "history" => "Історія",
+            "compare" => "Порівняння",
+            "monitor" => "Моніторинг",
+            "endpoints" => "Ендпоінти",
+            "settings" => "Налаштування",
+            _ when path.StartsWith("detail") => "Деталі",
+            _ => "Панель"
+        };
+    }
+
+    private string HostShort => Settings.OllamaEndpoint.Replace("http://", "").Replace("https://", "");
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

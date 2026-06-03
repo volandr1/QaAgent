@@ -1,0 +1,28 @@
+@page "/details"
+@inject WorkspacePaths Paths
+@inject NavigationManager Nav
+
+<PageTitle>QA-агент · Деталі</PageTitle>
+
+@if (_empty)
+{
+    <div class="page-head">
+        <div>
+            <div class="kicker"><span class="ic"><Icon Name="file" Size="16" /></span><span>route /details</span></div>
+            <h1>Деталі прогону</h1>
+            <p class="sub">Тут зʼявляться деталі останнього прогону. Запусти повний цикл на Панелі.</p>
+        </div>
+    </div>
+    <div class="card"><p class="muted">Прогонів ще немає.</p></div>
+}
+
+@code {
+    private bool _empty;
+
+    protected override void OnInitialized()
+    {
+        var latest = ReportStore.ListAll(Paths.Artifacts).FirstOrDefault();
+        if (latest is null) { _empty = true; return; }
+        Nav.NavigateTo($"detail/{latest.Target}/{latest.Stamp}", replace: true);
+    }
+}

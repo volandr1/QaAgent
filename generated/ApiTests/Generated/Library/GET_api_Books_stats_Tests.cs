@@ -7,15 +7,15 @@ using NUnit.Framework;
 namespace ApiTests.Generated.Library;
 
 [TestFixture]
-public class GET_api_Books_Tests : ApiTestBase
+public class GET_api_Books_stats_Tests : ApiTestBase
 {
 
-    // Retrieving all books should return a successful response with status code 200.
+    // Retrieve book statistics successfully
     [Test]
     [Category("positive")]
-    public async Task Get_Books_Positive_1()
+    public async Task Get_Stats_Positive_1()
     {
-        var response = await Api.GetAsync("api/Books");
+        var response = await Api.GetAsync("api/Books/stats");
         Assert.That((int)response.Status, Is.EqualTo(200),
             $"Очікували 200, отримали {(int)response.Status}: {await response.TextAsync()}");
     }

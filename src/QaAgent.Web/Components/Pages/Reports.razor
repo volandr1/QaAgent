@@ -3,38 +3,71 @@
 
 <PageTitle>QA-агент · Історія</PageTitle>
 
-<h1>Історія прогонів</h1>
-<p class="muted">Усі таргети · @_runs.Count прогонів (зберігаються на диску, переживають перезапуск)</p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="clock" Size="16" /></span><span>route /history</span></div>
+        <h1>Історія прогонів</h1>
+        <p class="sub">Усі минулі прогони агента з результатами, виправленнями та знайденими багами. Зберігаються на диску.</p>
+    </div>
+</div>
 
 @if (_runs.Count == 0)
 {
-    <p class="muted">Прогонів ще немає. Запусти повний цикл на Панелі.</p>
+    <div class="card"><p class="muted">Прогонів ще немає. Запусти повний цикл на Панелі.</p></div>
 }
 else
 {
-    <table>
-        <thead><tr><th>Час</th><th>Таргет</th><th>Статус</th><th>Тести</th><th>Хілінг</th><th>Баги</th><th></th></tr></thead>
-        <tbody>
-        @foreach (var r in _runs)
-        {
-            var tr = r.Report.TestRun;
-            <tr>
-                <td style="white-space:nowrap">@r.Report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
-                <td>@r.Target</td>
-                <td><span class="badge @(r.Report.Success ? "pass" : "fail")">@(r.Report.Success ? "PASS" : "FAIL")</span></td>
-                <td>@(tr is null ? "—" : $"{tr.Passed}/{tr.Total}")</td>
-                <td>@(r.Report.SelfHealingApplied ? $"🩹 {r.Report.HealedFiles.Count}" : "—")</td>
-                <td>@(r.Report.BugCount > 0 ? $"🐞 {r.Report.BugCount}" : "—")</td>
-                <td><a href="@($"detail/{r.Target}/{r.Stamp}")">деталі →</a></td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="grid-2" style="grid-template-columns:1.6fr 1fr 1fr;margin-bottom:18px">
+        <div class="card">
+            <div class="card-h"><Icon Name="radar" Size="15" /> Тренд стабільності <span style="flex:1"></span><span class="mono" style="font-size:11px;color:var(--text-3)">останні @_trend.Count</span></div>
+            <div style="display:flex;align-items:flex-end;gap:18px">
+                <div><div class="tnum" style="font-size:34px;font-weight:700;line-height:1;color:var(--pass)">@_passRate%</div><div class="muted" style="margin-top:5px">PASS rate</div></div>
+                <div style="flex:1" class="bars">@foreach (var p in _trend) { <span class="bar @(p ? "p" : "f")"></span> }</div>
+            </div>
+            <div style="display:flex;gap:18px;padding-top:12px;margin-top:12px;border-top:1px solid var(--border-soft)">
+                <span class="legend"><i style="background:var(--pass)"></i>@_passCount PASS</span>
+                <span class="legend"><i style="background:var(--fail)"></i>@(_trend.Count - _passCount) FAIL</span>
+            </div>
+        </div>
+        <div class="card"><div class="card-h"><Icon Name="cycle" Size="15" /> Всього прогонів</div><div class="tnum" style="font-size:28px;font-weight:700;color:var(--ai-2)">@_runs.Count</div></div>
+        <div class="card"><div class="card-h"><Icon Name="heal" Size="15" /> Авто-виправлень</div><div class="tnum" style="font-size:28px;font-weight:700;color:var(--ai-2)">@_totalHealed</div></div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:13px 16px;border-bottom:1px solid var(--border)"><span class="card-h" style="margin:0"><Icon Name="terminal" Size="15" /> Прогони · @_runs.Count</span></div>
+        <table>
+            <thead><tr><th>Час</th><th>Таргет</th><th>Статус</th><th>Тести</th><th>Heal</th><th>Bugs</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var r in _runs)
+            {
+                var tr = r.Report.TestRun;
+                <tr style="cursor:pointer" @onclick="@(() => Nav.NavigateTo($"detail/{r.Target}/{r.Stamp}"))">
+                    <td><div style="font-weight:500">@r.Report.GeneratedAt.ToLocalTime().ToString("dd.MM HH:mm")</div></td>
+                    <td>@r.Target</td>
+                    <td><span class="badge @(r.Report.Success ? "pass" : "fail")">@(r.Report.Success ? "PASS" : "FAIL")</span></td>
+                    <td class="mono tnum" style="color:@(r.Report.Success ? "var(--text)" : "var(--fail)")">@(tr is null ? "—" : $"{tr.Passed}/{tr.Total}")</td>
+                    <td class="mono tnum">@(r.Report.HealedFiles.Count > 0 ? $"🩹 {r.Report.HealedFiles.Count}" : "0")</td>
+                    <td class="mono tnum" style="color:@(r.Report.BugCount > 0 ? "var(--fail)" : "var(--pass)")">@r.Report.BugCount</td>
+                    <td style="text-align:right;color:var(--text-3)"><Icon Name="chevron" Size="16" /></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
+    [Inject] NavigationManager Nav { get; set; } = default!;
     private List<RunRecord> _runs = new();
+    private List<bool> _trend = new();
+    private int _passCount, _passRate, _totalHealed;
 
-    protected override void OnInitialized() =>
+    protected override void OnInitialized()
+    {
         _runs = ReportStore.ListAll(Paths.Artifacts);
+        _trend = _runs.AsEnumerable().Reverse().TakeLast(30).Select(r => r.Report.Success).ToList();
+        _passCount = _trend.Count(p => p);
+        _passRate = _trend.Count == 0 ? 0 : (int)Math.Round(100.0 * _passCount / _trend.Count);
+        _totalHealed = _runs.Sum(r => r.Report.HealedFiles.Count);
+    }
 }

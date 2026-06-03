@@ -23,6 +23,9 @@ public sealed class TargetConfig
     /// <summary>Чи покривати write-ендпоінти (POST create / PUT negative / DELETE smoke). МУТУЄ дані.</summary>
     public bool CoverWrites { get; init; }
 
+    /// <summary>Обрана схема авторизації в UI: none | apikey | oauth | bearer | login.</summary>
+    public string AuthScheme { get; init; } = "none";
+
     public string BaseUrl => new Uri(SwaggerUrl).GetLeftPart(UriPartial.Authority);
 
     public static readonly IReadOnlyList<TargetConfig> BuiltIn = new[]
@@ -52,13 +55,14 @@ public sealed class TargetConfig
     /// Створює таргет для ДОВІЛЬНОГО Swagger/OpenAPI URL. Auth і negative вимкнені за
     /// замовчуванням (контракт невідомий). Ім'я виводиться з хоста, якщо не задане.
     /// </summary>
-    public static TargetConfig FromUrl(string swaggerUrl, string? name = null) => new()
+    public static TargetConfig FromUrl(string swaggerUrl, string? name = null, string authScheme = "none") => new()
     {
         Name = string.IsNullOrWhiteSpace(name) ? DeriveName(swaggerUrl) : Sanitize(name!),
         SwaggerUrl = swaggerUrl,
         ProbeAuth = false,
         GenerateNegatives = true,   // повне покриття: і negative для write
-        CoverWrites = true          // positive-create / PUT-negative / DELETE-smoke
+        CoverWrites = true,         // positive-create / PUT-negative / DELETE-smoke
+        AuthScheme = authScheme
     };
 
     private static string DeriveName(string url)

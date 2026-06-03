@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using QaAgent.Core;
 
@@ -57,6 +58,33 @@ public sealed class TelegramReporter
         return resp.IsSuccessStatusCode;
     }
 
+    /// <summary>
+    /// Надсилає файл (детальний звіт) як документ — у тому ж повідомленні через caption.
+    /// Telegram-обмеження: розмір файлу до 50 МБ, caption до 1024 символів.
+    /// </summary>
+    public async Task<bool> SendDocumentAsync(byte[] content, string fileName,
+        string? caption = null, string contentType = "text/html", CancellationToken ct = default)
+    {
+        var token = Env("TELEGRAM_BOT_TOKEN");
+        var chatId = Env("TELEGRAM_CHAT_ID");
+        if (token is null || chatId is null) return false;
+
+        var url = $"https://api.telegram.org/bot{token}/sendDocument";
+        using var form = new MultipartFormDataContent { { new StringContent(chatId), "chat_id" } };
+        if (!string.IsNullOrWhiteSpace(caption))
+        {
+            var safe = caption.Length > 1024 ? caption[..1024] : caption;
+            form.Add(new StringContent(safe), "caption");
+        }
+
+        var fileContent = new ByteArrayContent(content);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+        form.Add(fileContent, "document", fileName);
+
+        var resp = await Http.PostAsync(url, form, ct);
+        return resp.IsSuccessStatusCode;
+    }
+
     private static string? Env(string name) => Environment.GetEnvironmentVariable(name);
 }
 
@@ -95,17 +123,23 @@ public sealed class ReportDispatcher
 
     public ReportDispatcher(string reportsDir) => _file = new FileReporter(reportsDir);
 
-    public async Task<List<string>> DispatchAsync(RunReport report, CancellationToken ct = default)
+    public async Task<List<string>> DispatchAsync(RunReport report, CancellationToken ct = default, bool sendTelegram = true)
     {
         var log = new List<string>();
 
         var (mdPath, _) = _file.Write(report);
         log.Add($"📄 Файл: {mdPath}");
 
-        if (TelegramReporter.IsConfigured)
+        if (!sendTelegram)
+            log.Add("📨 Telegram: вимкнено в налаштуваннях моніторингу");
+        else if (TelegramReporter.IsConfigured)
         {
-            var ok = await new TelegramReporter().SendAsync(ReportRenderer.ToShortText(report), ct);
-            log.Add(ok ? "📨 Telegram: надіслано" : "📨 Telegram: помилка надсилання");
+            // Короткий підсумок (caption) + детальний PDF-звіт прикріпленим файлом — в одному повідомленні.
+            var caption = ReportRenderer.ToShortText(report);
+            var pdf = PdfReport.Build(report);
+            var fileName = $"report-{report.GeneratedAt:yyyyMMdd-HHmmss}.pdf";
+            var ok = await new TelegramReporter().SendDocumentAsync(pdf, fileName, caption, "application/pdf", ct);
+            log.Add(ok ? "📨 Telegram: надіслано (підсумок + PDF-звіт)" : "📨 Telegram: помилка надсилання");
         }
         else log.Add("📨 Telegram: пропущено (немає TELEGRAM_BOT_TOKEN/CHAT_ID)");
 

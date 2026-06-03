@@ -4,65 +4,49 @@
 
 <PageTitle>QA-агент · Порівняння</PageTitle>
 
-<h1>Порівняння прогонів</h1>
-<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="compare" Size="16" /></span><span>route /compare</span></div>
+        <h1>Порівняння прогонів</h1>
+        <p class="sub">Дельта між двома прогонами таргета <b>@Settings.TargetName</b>: регресії, виправлення, стабільні падіння.</p>
+    </div>
+</div>
 
 @if (_runs.Count < 2)
 {
-    <p class="muted">Потрібно щонайменше два прогони цього таргета.</p>
+    <div class="card"><p class="muted">Потрібно щонайменше два прогони цього таргета.</p></div>
 }
 else
 {
-    <div style="display:flex; gap:16px; align-items:flex-end; margin-bottom:12px;">
-        <div>
-            <label>База (раніше)</label>
-            <select @bind="_baseStamp">
-                @foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }
-            </select>
+    <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px"><label>База (раніше)</label>
+                <select @bind="_baseStamp">@foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }</select></div>
+            <div style="flex:1;min-width:200px"><label>Поточний (пізніше)</label>
+                <select @bind="_curStamp">@foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }</select></div>
+            <button class="btn primary" @onclick="Compute"><Icon Name="compare" Size="15" /> Порівняти</button>
         </div>
-        <div>
-            <label>Поточний (пізніше)</label>
-            <select @bind="_curStamp">
-                @foreach (var r in _runs) { <option value="@r.Stamp">@Label(r)</option> }
-            </select>
-        </div>
-        <button class="primary" @onclick="Compute">Порівняти</button>
     </div>
 
     @if (_computed)
     {
-        <div class="card">
-            <span class="badge fail">⤵ почали падати: @_newlyFailing.Count</span>
-            <span class="badge pass" style="margin-left:8px">⤴ полагодились: @_newlyPassing.Count</span>
-            <span class="badge run" style="margin-left:8px">досі падають: @_stillFailing.Count</span>
+        <div class="grid-2" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:16px">
+            <div class="card"><div class="card-h" style="color:var(--fail)"><Icon Name="warn" Size="15" /> Регресії</div><div class="stat"><span class="v" style="color:var(--fail)">@_newlyFailing.Count</span><span class="l">почали падати</span></div></div>
+            <div class="card"><div class="card-h" style="color:var(--pass)"><Icon Name="check" Size="15" /> Полагоджені</div><div class="stat"><span class="v" style="color:var(--pass)">@_newlyPassing.Count</span><span class="l">почали проходити</span></div></div>
+            <div class="card"><div class="card-h" style="color:var(--running)"><Icon Name="bug" Size="15" /> Стабільні</div><div class="stat"><span class="v" style="color:var(--running)">@_stillFailing.Count</span><span class="l">досі падають</span></div></div>
         </div>
 
-        @if (_newlyFailing.Count > 0)
-        {
-            <h2 class="fail">Регресії (почали падати)</h2>
-            <ul>@foreach (var n in _newlyFailing) { <li>@n</li> }</ul>
-        }
-        @if (_newlyPassing.Count > 0)
-        {
-            <h2 class="pass">Полагоджені (почали проходити)</h2>
-            <ul>@foreach (var n in _newlyPassing) { <li>@n</li> }</ul>
-        }
-        @if (_stillFailing.Count > 0)
-        {
-            <h2>Стабільно падають</h2>
-            <ul>@foreach (var n in _stillFailing) { <li>@n</li> }</ul>
-        }
+        @if (_newlyFailing.Count > 0) { <h2 style="color:var(--fail)">Регресії</h2><div class="card"><ul style="margin:0;padding-left:18px">@foreach (var n in _newlyFailing) { <li class="mono" style="font-size:12.5px;padding:2px 0">@n</li> }</ul></div> }
+        @if (_newlyPassing.Count > 0) { <h2 style="color:var(--pass)">Полагоджені</h2><div class="card"><ul style="margin:0;padding-left:18px">@foreach (var n in _newlyPassing) { <li class="mono" style="font-size:12.5px;padding:2px 0">@n</li> }</ul></div> }
+        @if (_stillFailing.Count > 0) { <h2>Стабільно падають</h2><div class="card"><ul style="margin:0;padding-left:18px">@foreach (var n in _stillFailing) { <li class="mono" style="font-size:12.5px;padding:2px 0">@n</li> }</ul></div> }
     }
 }
 
 @code {
     private List<RunRecord> _runs = new();
-    private string _baseStamp = "";
-    private string _curStamp = "";
+    private string _baseStamp = "", _curStamp = "";
     private bool _computed;
-    private List<string> _newlyFailing = new();
-    private List<string> _newlyPassing = new();
-    private List<string> _stillFailing = new();
+    private List<string> _newlyFailing = new(), _newlyPassing = new(), _stillFailing = new();
 
     protected override void OnInitialized()
     {
@@ -73,26 +57,22 @@ else
     private string Label(RunRecord r)
     {
         var tr = r.Report.TestRun;
-        return $"{r.Report.GeneratedAt.ToLocalTime():MM-dd HH:mm} · {(r.Report.Success ? "PASS" : "FAIL")} · {(tr is null ? "" : $"{tr.Passed}/{tr.Total}")}";
+        return $"{r.Report.GeneratedAt.ToLocalTime():dd.MM HH:mm} · {(r.Report.Success ? "PASS" : "FAIL")} · {(tr is null ? "" : $"{tr.Passed}/{tr.Total}")}";
     }
 
     private void Compute()
     {
-        var baseRun = _runs.FirstOrDefault(r => r.Stamp == _baseStamp)?.Report.TestRun;
-        var curRun = _runs.FirstOrDefault(r => r.Stamp == _curStamp)?.Report.TestRun;
-        if (baseRun is null || curRun is null) return;
+        var b = _runs.FirstOrDefault(r => r.Stamp == _baseStamp)?.Report.TestRun;
+        var c = _runs.FirstOrDefault(r => r.Stamp == _curStamp)?.Report.TestRun;
+        if (b is null || c is null) return;
 
-        bool Failed(QaAgent.Core.TestRun run, string name) =>
-            run.Results.Any(r => r.Name == name && r.Outcome == TestOutcome.Failed);
-        bool Passed(QaAgent.Core.TestRun run, string name) =>
-            run.Results.Any(r => r.Name == name && r.Outcome == TestOutcome.Passed);
+        bool Failed(QaAgent.Core.TestRun run, string n) => run.Results.Any(r => r.Name == n && r.Outcome == TestOutcome.Failed);
+        bool Passed(QaAgent.Core.TestRun run, string n) => run.Results.Any(r => r.Name == n && r.Outcome == TestOutcome.Passed);
 
-        var names = baseRun.Results.Select(r => r.Name)
-            .Union(curRun.Results.Select(r => r.Name)).Distinct().OrderBy(x => x).ToList();
-
-        _newlyFailing = names.Where(n => Passed(baseRun, n) && Failed(curRun, n)).ToList();
-        _newlyPassing = names.Where(n => Failed(baseRun, n) && Passed(curRun, n)).ToList();
-        _stillFailing = names.Where(n => Failed(baseRun, n) && Failed(curRun, n)).ToList();
+        var names = b.Results.Select(r => r.Name).Union(c.Results.Select(r => r.Name)).Distinct().OrderBy(x => x).ToList();
+        _newlyFailing = names.Where(n => Passed(b, n) && Failed(c, n)).ToList();
+        _newlyPassing = names.Where(n => Failed(b, n) && Passed(c, n)).ToList();
+        _stillFailing = names.Where(n => Failed(b, n) && Failed(c, n)).ToList();
         _computed = true;
     }
 }

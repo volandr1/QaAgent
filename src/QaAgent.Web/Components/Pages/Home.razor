@@ -4,112 +4,239 @@
 
 <PageTitle>QA-агент · Панель</PageTitle>
 
-<h1>Панель керування</h1>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="terminal" Size="16" /></span><span>route /</span></div>
+        <h1>Панель керування агентом</h1>
+        <p class="sub">Центр керування автономним QA-агентом — запуск циклів, перегляд логів і результатів у реальному часі.</p>
+    </div>
+    <div>
+        @{ var st = _running ? ("run","RUNNING","виконується") : _report is null ? ("idle","IDLE","очікування") : _report.Success ? ("pass","PASS","успіх") : ("fail","FAIL","є падіння"); }
+        <span class="badge @st.Item1">@st.Item2</span>
+        <span class="muted" style="margin-left:8px">@st.Item3</span>
+    </div>
+</div>
 
-<div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-    <label style="margin:0">Таргет:</label>
-    <select style="width:auto" value="@Settings.TargetName" @onchange="OnTargetChange" disabled="@_running">
-        @foreach (var t in Settings.Targets)
+<div class="card" style="padding:14px 16px">
+    <div class="kicker" style="margin-bottom:10px"><span>ціль · target</span></div>
+    <div class="target-card">
+        <div class="tselect">
+            <button class="tselect-trigger" @onclick="ToggleDropdown" disabled="@_running">
+                <span class="dot"></span>
+                <div style="flex:1">
+                    <div class="name">@Settings.TargetName</div>
+                    <div class="url">@Settings.CurrentTarget.SwaggerUrl</div>
+                </div>
+                <span class="chev"><Icon Name="@(_ddOpen ? "caret" : "chevron")" Size="16" /></span>
+            </button>
+            @if (_ddOpen)
+            {
+                <div class="backdrop" @onclick="CloseDropdown"></div>
+                <div class="tselect-menu">
+                    @foreach (var t in Settings.Targets)
+                    {
+                        <div class="tselect-item @(t.Name == Settings.TargetName ? "sel" : "")" @onclick="@(() => SelectTarget(t.Name))">
+                            <span class="dot"></span>
+                            <div style="flex:1"><div class="name">@t.Name</div><div class="url">@t.SwaggerUrl</div></div>
+                            @if (t.Name == Settings.TargetName) { <span class="check"><Icon Name="check" Size="16" /></span> }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <button class="btn" @onclick="OpenModal" disabled="@_running"><Icon Name="plus" Size="15" /> Додати API</button>
+        @if (TargetConfig.BuiltIn.All(b => !b.Name.Equals(Settings.TargetName, StringComparison.OrdinalIgnoreCase)))
         {
-            <option value="@t.Name">@t.Name</option>
+            <button class="btn" @onclick="RemoveCurrent" disabled="@_running" title="Прибрати таргет"><Icon Name="x" Size="14" /></button>
         }
-    </select>
-    <span class="muted">@Settings.CurrentTarget.SwaggerUrl · @Settings.OllamaModel</span>
-    @if (TargetConfig.BuiltIn.All(b => !b.Name.Equals(Settings.TargetName, StringComparison.OrdinalIgnoreCase)))
-    {
-        <button @onclick="RemoveCurrent" disabled="@_running" title="Прибрати цей таргет">✕</button>
-    }
+    </div>
 </div>
 
-<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; max-width:760px;">
-    <input type="text" @bind="_customUrl" placeholder="Будь-який Swagger/OpenAPI URL, напр. https://api.example.com/swagger/v1/swagger.json" disabled="@_running" />
-    <button @onclick="AddCustom" disabled="@_running">+ Додати API</button>
-</div>
-
-<div class="btnrow">
-    <button class="primary" disabled="@_running" @onclick="FullCycle">▶ Повний цикл</button>
-    <button disabled="@_running" @onclick="Probe">Probe</button>
-    <button disabled="@_running" @onclick="Generate">Generate</button>
-    <button disabled="@_running" @onclick="Run">Run</button>
-    <button disabled="@_running" @onclick="Heal">Heal</button>
-    @if (_running)
-    {
-        <span class="badge run">⏳ виконується…</span>
-    }
-</div>
-
-@if (_report is not null)
+@if (_modalOpen)
 {
-    <div class="card">
-        <span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span>
-        @if (_report.TestRun is { } tr)
-        {
-            <span style="margin-left:12px">Тести: <b>@tr.Passed/@tr.Total</b> passed, @tr.Failed failed (@tr.Duration.TotalSeconds.ToString("F1")s)</span>
-        }
-        @if (_report.SelfHealingApplied)
-        {
-            <span style="margin-left:12px">🩹 полагоджено: @_report.HealedFiles.Count</span>
-        }
-        @if (_report.SchemaChanges.Count > 0)
-        {
-            <div class="muted" style="margin-top:8px">Зміни схеми: @string.Join("; ", _report.SchemaChanges)</div>
-        }
+    <div class="modal-bd" @onclick="CloseModal">
+        <div class="modal" @onclick:stopPropagation="true">
+            <div class="modal-head">
+                <span class="section-icon"><Icon Name="plus" Size="18" /></span>
+                <div><div class="h">Додати API</div><div class="s">Підключіть нову Swagger / OpenAPI схему</div></div>
+                <button class="x" @onclick="CloseModal"><Icon Name="x" Size="18" /></button>
+            </div>
+            <div class="modal-body">
+                <label>API Name</label>
+                <input type="text" @bind="_newName" placeholder="Production API" />
+                <label>Swagger URL</label>
+                <input type="text" @bind="_newUrl" placeholder="https://api.example.com/swagger.json" />
+                <div class="hint">Посилання на swagger.json або openapi.json</div>
+                <label>Authentication</label>
+                <div class="seg">
+                    @foreach (var a in _authOptions)
+                    {
+                        <button class="@(_newAuth == a.Key ? "active" : "")" @onclick="@(() => _newAuth = a.Key)">@a.Value</button>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_modalError)) { <div class="hint" style="color:var(--fail)">@_modalError</div> }
+            </div>
+            <div class="modal-foot">
+                <button class="btn" @onclick="CloseModal">Скасувати</button>
+                <button class="btn primary" @onclick="ConnectApi"><Icon Name="check" Size="15" /> Підключити API</button>
+            </div>
+        </div>
     </div>
 }
 
-<h2>Лог</h2>
-<div class="log">@string.Join("\n", _log)</div>
+<div class="actions">
+    <button class="action primary" disabled="@_running" @onclick="FullCycle">
+        <span class="ai"><Icon Name="cycle" Size="19" /></span>
+        <span><span class="t">Повний цикл</span><div class="s">Аналіз → Генерація → Запуск → Heal</div></span>
+    </button>
+    <button class="action" disabled="@_running" @onclick="Probe">
+        <span class="ai"><Icon Name="scan" Size="18" /></span>
+        <span><span class="t">Зондувати</span><div class="s">Матриця доступу</div></span>
+    </button>
+    <button class="action" disabled="@_running" @onclick="Generate">
+        <span class="ai"><Icon Name="generate" Size="18" /></span>
+        <span><span class="t">Генерувати</span><div class="s">Створити C# тести</div></span>
+    </button>
+    <button class="action" disabled="@_running" @onclick="Run">
+        <span class="ai"><Icon Name="play" Size="18" /></span>
+        <span><span class="t">Запустити</span><div class="s">Виконати тести</div></span>
+    </button>
+    <button class="action" disabled="@_running" @onclick="Heal">
+        <span class="ai"><Icon Name="heal" Size="18" /></span>
+        <span><span class="t">Відновити</span><div class="s">Полагодити зламані</div></span>
+    </button>
+</div>
+
+<div class="grid-2">
+    <div class="console">
+        <div class="console-head">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <span class="title">agent://execution.log</span>
+        </div>
+        @if (_log.Count == 0)
+        {
+            <div class="log-empty">
+                <div>
+                    <div class="cur">&gt;_</div>
+                    <div style="margin-top:8px">Консоль очікує команду</div>
+                    <div class="muted" style="margin-top:4px">Натисніть «Повний цикл», щоб запустити агента</div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="log">
+                @foreach (var line in _log)
+                {
+                    <div class="ln @LogCls(line)">@line</div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="card">
+        <div class="card-h"><Icon Name="file" Size="15" /> Результат</div>
+        @if (_report is null)
+        {
+            <div class="log-empty" style="height:auto;padding:40px 0">
+                <div>
+                    <span style="color:var(--text-3)"><Icon Name="file" Size="28" /></span>
+                    <div style="margin-top:10px" class="muted">Результат з'явиться<br />після прогону</div>
+                </div>
+            </div>
+        }
+        else
+        {
+            var tr = _report.TestRun;
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+                <span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span>
+                @if (_report.SelfHealingApplied) { <span class="badge heal">🩹 @_report.HealedFiles.Count</span> }
+                @if (_report.BugCount > 0) { <span class="badge fail">@_report.BugCount 🐞</span> }
+            </div>
+            @if (tr is not null)
+            {
+                <div style="display:flex;gap:24px;margin-bottom:14px">
+                    <div class="stat"><span class="v" style="color:var(--pass)">@tr.Passed</span><span class="l">passed</span></div>
+                    <div class="stat"><span class="v" style="color:@(tr.Failed>0?"var(--fail)":"var(--text-2)")">@tr.Failed</span><span class="l">failed</span></div>
+                    <div class="stat"><span class="v">@tr.Total</span><span class="l">усього</span></div>
+                    <div class="stat"><span class="v tnum">@tr.Duration.TotalSeconds.ToString("F1")s</span><span class="l">час</span></div>
+                </div>
+            }
+            @if (_report.SchemaChanges.Count > 0)
+            {
+                <div class="muted" style="font-size:12px;margin-top:8px"><b style="color:var(--text)">Зміни схеми:</b> @string.Join("; ", _report.SchemaChanges)</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(_report.AiAnalysis))
+            {
+                <div style="margin-top:12px;padding:12px;border:1px solid var(--ai-line);border-radius:9px;background:var(--ai-soft)">
+                    <div style="display:flex;align-items:center;gap:7px;color:var(--ai-2);font-size:12px;font-weight:600;margin-bottom:6px"><Icon Name="brain" Size="14" /> AI-аналіз</div>
+                    <div style="font-size:13px;white-space:pre-wrap">@_report.AiAnalysis</div>
+                </div>
+            }
+        }
+    </div>
+</div>
 
 @code {
     private readonly List<string> _log = new();
     private bool _running;
     private RunReport? _report;
 
-    private string _customUrl = "";
+    private bool _ddOpen, _modalOpen;
+    private string _newName = "", _newUrl = "", _newAuth = "none", _modalError = "";
+    private readonly Dictionary<string, string> _authOptions = new()
+    { ["none"] = "None", ["apikey"] = "API Key", ["oauth"] = "OAuth", ["bearer"] = "Bearer Token" };
 
-    private void OnTargetChange(ChangeEventArgs e)
+    private static string LogCls(string l) =>
+        l.Contains("❌") || l.Contains("FAIL", StringComparison.OrdinalIgnoreCase) ? "fail" :
+        l.Contains("⚠️") ? "warn" :
+        l.Contains("🩹") || l.Contains("AI") || l.Contains("аналіз") ? "ai" :
+        l.Contains("✅") || l.Contains("passed") ? "ok" :
+        l.TrimStart().StartsWith("•") ? "code" : "";
+
+    private void Log(string line) { _log.Add(line); InvokeAsync(StateHasChanged); }
+
+    private void ToggleDropdown() => _ddOpen = !_ddOpen;
+    private void CloseDropdown() => _ddOpen = false;
+
+    private void SelectTarget(string name)
     {
-        Settings.TargetName = e.Value?.ToString() ?? Settings.TargetName;
-        _report = null;
-        _log.Clear();
+        Settings.TargetName = name;
+        Settings.Save();
+        _ddOpen = false; _report = null; _log.Clear();
     }
 
-    private void AddCustom()
+    private void OpenModal()
     {
-        var url = _customUrl.Trim();
-        if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return;
-        Settings.AddCustom(url);
-        _customUrl = "";
-        _report = null;
-        _log.Clear();
+        _newName = ""; _newUrl = ""; _newAuth = "none"; _modalError = "";
+        _ddOpen = false; _modalOpen = true;
     }
 
-    private void RemoveCurrent()
+    private void CloseModal() => _modalOpen = false;
+
+    private void ConnectApi()
     {
-        Settings.RemoveCustom(Settings.TargetName);
-        _report = null;
-        _log.Clear();
+        var url = _newUrl.Trim();
+        if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        {
+            _modalError = "Вкажіть коректний URL (http:// або https://)";
+            return;
+        }
+        Settings.AddCustom(url, string.IsNullOrWhiteSpace(_newName) ? null : _newName.Trim(), _newAuth);
+        _modalOpen = false; _report = null; _log.Clear();
     }
 
-    private void Log(string line)
-    {
-        _log.Add(line);
-        InvokeAsync(StateHasChanged);
-    }
+    private void RemoveCurrent() { Settings.RemoveCustom(Settings.TargetName); _report = null; _log.Clear(); }
 
     private Task FullCycle() => RunOp(async svc => _report = await svc.FullCycleAsync(Log));
-
     private Task Probe() => RunOp(svc => svc.ProbeAsync(Log));
-
     private Task Generate() => RunOp(async svc =>
     {
         var api = await svc.LoadSnapshotAsync();
         if (api is null) { Log("❌ Немає знімка. Спершу запусти Probe."); return; }
         await svc.GenerateAsync(api, overwrite: true, log: Log);
     });
-
     private Task Run() => RunOp(svc => svc.RunAsync(Log));
-
     private Task Heal() => RunOp(async svc =>
     {
         var (current, diff) = await svc.AnalyzeAsync(Log);
@@ -119,23 +246,9 @@
     private async Task RunOp(Func<QaAgentService, Task> op)
     {
         if (_running) return;
-        _running = true;
-        _report = null;
-        _log.Clear();
-        StateHasChanged();
-        try
-        {
-            var svc = Settings.CreateService(Paths);
-            await op(svc);
-        }
-        catch (Exception ex)
-        {
-            Log($"❌ Помилка: {ex.Message}");
-        }
-        finally
-        {
-            _running = false;
-            StateHasChanged();
-        }
+        _running = true; _report = null; _log.Clear(); StateHasChanged();
+        try { await op(Settings.CreateService(Paths)); }
+        catch (Exception ex) { Log($"❌ Помилка: {ex.Message}"); }
+        finally { _running = false; StateHasChanged(); }
     }
 }

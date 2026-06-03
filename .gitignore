@@ -11,7 +11,8 @@ artifacts/test-results/
 # Зберігаємо: artifacts/<Target>/schema-snapshot.json (baseline для diff/self-healing)
 #            generated/ApiTests/Generated/<Target>/*.cs (тести — основа для self-healing)
 
-# Користувацькі таргети UI (приватні URL) — локальні
+# Налаштування UI (таргети, модель, Telegram-токен) — локальні/приватні
+artifacts/ui-settings.json
 artifacts/custom-targets.json
 
 # Rider/IDE

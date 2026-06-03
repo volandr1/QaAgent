@@ -1,60 +1,269 @@
 @page "/endpoints"
+@using System.Globalization
+@using System.IO.Compression
+@using QaAgent.Generation
 @inject WorkspacePaths Paths
 @inject AgentSettings Settings
+@inject IJSRuntime JS
 
 <PageTitle>QA-агент · Ендпоінти</PageTitle>
 
-<h1>Ендпоінти та матриця доступу</h1>
-<p class="muted">Таргет: <b>@Settings.TargetName</b></p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="nodes" Size="16" /></span><span>route /endpoints</span></div>
+        <h1>Інвентар ендпоінтів</h1>
+        <p class="sub">Усі ендпоінти зі схеми (@Settings.TargetName), рівень доступу та згенеровані C# тести.</p>
+    </div>
+    <div class="headstats">
+        <div><div class="v">@(_api?.Endpoints.Count ?? 0)</div><div class="l">ендпоінтів</div></div>
+        <div><div class="v" style="color:var(--ai-2)">@_totalCases</div><div class="l">тестів</div></div>
+        <div><div class="v" style="color:var(--blue)">@_files.Count</div><div class="l">файлів</div></div>
+        @if (_coverage is { } c0)
+        {
+            <div><div class="v" style="color:@CovColor(c0.Percent)">@c0.Percent%</div><div class="l">покриття</div></div>
+        }
+    </div>
+</div>
+
+@if (_coverage is { } cov)
+{
+    <div class="card" style="margin-bottom:18px">
+        <div class="card-h"><Icon Name="shield" Size="15" /> Покриття ендпоінтів · @cov.CoveredEndpoints/@cov.TotalEndpoints</div>
+        <div class="cov-bar"><span style="width:@cov.Percent%;background:@CovColor(cov.Percent)"></span></div>
+        <div class="cov-meta">
+            <span style="color:@CovColor(cov.Percent);font-weight:600">@cov.Percent%</span>
+            <span class="muted">покрито @cov.CoveredEndpoints з @cov.TotalEndpoints</span>
+            @if (cov.Uncovered.Count > 0) { <span class="muted">· без тестів: @cov.Uncovered.Count</span> }
+        </div>
+        @if (cov.ByType.Count > 0)
+        {
+            <div class="cov-chips">
+                @foreach (var kv in cov.ByType.OrderByDescending(k => k.Value))
+                {
+                    <span class="cov-chip"><b>@kv.Value</b> @kv.Key</span>
+                }
+            </div>
+        }
+        @if (cov.Uncovered.Count > 0)
+        {
+            <div class="cov-uncovered">
+                <div class="muted" style="font-size:12px;margin-bottom:6px">Ендпоінти без тестів:</div>
+                @foreach (var sig in cov.Uncovered)
+                {
+                    <span class="cov-miss mono">@sig</span>
+                }
+            </div>
+        }
+    </div>
+}
 
 @if (_api is null)
 {
-    <p class="muted">Немає знімка. Запусти Probe на панелі, щоб побудувати матрицю доступу.</p>
+    <div class="card"><p class="muted">Немає знімка. Запусти Probe на Панелі, щоб побудувати матрицю доступу.</p></div>
 }
 else
 {
-    <p class="muted">@_api.Title v@_api.Version · @_api.Endpoints.Count ендпоінтів · знімок від @_api.CapturedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
-    <table>
-        <thead><tr><th>Метод</th><th>Шлях</th><th>Доступ</th></tr></thead>
-        <tbody>
-        @foreach (var ep in _api.Endpoints.OrderBy(e => e.Path).ThenBy(e => e.Method))
-        {
-            <tr>
-                <td>@ep.Method</td>
-                <td>@ep.Path</td>
-                <td>@AuthIcon(ep.Auth) @ep.Auth</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="grid-2">
+        <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:13px 16px;border-bottom:1px solid var(--border)"><span class="card-h" style="margin:0"><Icon Name="layers" Size="15" /> Endpoint Matrix · @_api.Endpoints.Count</span></div>
+            <table>
+                <thead><tr><th>Метод</th><th>Шлях</th><th>Доступ</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var ep in _api.Endpoints.OrderBy(e => e.Path).ThenBy(e => e.Method))
+                {
+                    var path = FileForEndpoint(ep);
+                    <tr class="clk @(path == _viewPath ? "active" : "")" @onclick="@(() => OpenEndpoint(ep))" title="Переглянути згенерований код">
+                        <td><span class="method @ep.Method">@ep.Method</span></td>
+                        <td class="mono" style="font-size:12.5px">@ep.Path</td>
+                        <td>
+                            @switch (ep.Auth)
+                            {
+                                case AuthRequirement.Admin: <span class="authtag admin"><Icon Name="crown" Size="14" /> Admin</span> break;
+                                case AuthRequirement.Authenticated: <span class="authtag auth"><Icon Name="key" Size="14" /> Auth</span> break;
+                                default: <span class="authtag anon"><Icon Name="globe" Size="14" /> Public</span> break;
+                            }
+                        </td>
+                        <td style="text-align:right;color:var(--text-3)">
+                            @if (path is not null) { <Icon Name="arrowRight" Size="15" /> }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
 
-    <h2>Згенеровані тести (@_tests.Count)</h2>
-    <ul>
-        @foreach (var t in _tests)
-        {
-            <li>@t</li>
-        }
-    </ul>
+        <div class="card">
+            <div class="card-h"><Icon Name="file" Size="15" /> Згенеровані файли · @_files.Count</div>
+            @if (_files.Count == 0)
+            {
+                <p class="muted">Тести ще не згенеровано.</p>
+            }
+            else
+            {
+                @foreach (var f in _files)
+                {
+                    <div class="filerow">
+                        <span class="ic"><Icon Name="file" Size="16" /></span>
+                        <div style="flex:1;cursor:pointer" @onclick="@(() => OpenFile(f))">
+                            <div class="n">@f.Name</div>
+                            <div class="m">@f.Cases cases · @f.SizeKb KB</div>
+                        </div>
+                        <div class="fr-act">
+                            <button class="fr-ico" title="Переглянути" @onclick="@(() => OpenFile(f))"><Icon Name="external" Size="15" /></button>
+                            <button class="fr-ico" title="Завантажити" @onclick="@(() => Download(f))"><Icon Name="download" Size="15" /></button>
+                            <button class="fr-ico re" title="Перегенерувати" disabled="@_busy" @onclick="Regenerate"><Icon Name="refresh" Size="15" /></button>
+                        </div>
+                    </div>
+                }
+                <button class="zip-all" disabled="@_busy" @onclick="DownloadAll"><Icon Name="download" Size="15" /> Завантажити всі (.zip)</button>
+            }
+        </div>
+    </div>
+}
+
+@if (_viewOpen)
+{
+    <div class="drawer-bd" @onclick="CloseDrawer"></div>
+    <div class="drawer">
+        <div class="drawer-head">
+            <span class="di"><Icon Name="file" Size="18" /></span>
+            <div>
+                <div class="h">@_viewName</div>
+                <div class="s">@_viewMeta</div>
+            </div>
+            @if (_viewCode is not null && !_viewCode.StartsWith("//— не")) { <span class="badge pass" style="margin-left:auto">PASS</span> }
+            <button class="x" @onclick="CloseDrawer"><Icon Name="x" Size="18" /></button>
+        </div>
+        <pre class="code-view">@_viewCode</pre>
+        <div class="drawer-foot">
+            <button class="btn primary" disabled="@_busy" @onclick="Regenerate"><Icon Name="refresh" Size="15" /> @(_busy ? "Перегенерація…" : "Перегенерувати")</button>
+            <button class="btn" disabled="@(_viewFile is null)" @onclick="@(() => Download(_viewFile!))"><Icon Name="download" Size="15" /> Завантажити</button>
+        </div>
+    </div>
 }
 
 @code {
     private ApiSpec? _api;
-    private List<string> _tests = new();
+    private record FileRow(string Name, string FullPath, int Cases, string SizeKb, DateTime Modified);
+    private List<FileRow> _files = new();
+    private int _totalCases;
+    private bool _busy;
+    private CoverageInfo? _coverage;
+    private readonly TestRenderer _renderer = new();
 
-    protected override async Task OnInitializedAsync()
+    private static string CovColor(int pct) => pct >= 80 ? "var(--pass)" : pct >= 50 ? "var(--running)" : "var(--fail)";
+    private static readonly CultureInfo Uk = CultureInfo.GetCultureInfo("uk-UA");
+
+    // drawer
+    private bool _viewOpen;
+    private string _viewName = "", _viewMeta = "", _viewPath = "";
+    private string? _viewCode;
+    private FileRow? _viewFile;
+
+    protected override Task OnInitializedAsync() => Reload();
+
+    private async Task Reload()
     {
         _api = await new SnapshotStore(Paths.SnapshotFor(Settings.TargetName)).LoadAsync();
-        var genDir = Paths.GeneratedFor(Settings.TargetName);
-        if (Directory.Exists(genDir))
-            _tests = Directory.GetFiles(genDir, "*.cs")
-                .Select(System.IO.Path.GetFileName).OfType<string>().OrderBy(x => x).ToList();
+        _files = new(); _totalCases = 0;
+        var dir = Paths.GeneratedFor(Settings.TargetName);
+        if (Directory.Exists(dir))
+        {
+            foreach (var path in Directory.GetFiles(dir, "*.cs").OrderBy(x => x))
+            {
+                var text = await File.ReadAllTextAsync(path);
+                var cases = System.Text.RegularExpressions.Regex.Matches(text, @"\[Test\]").Count;
+                var fi = new FileInfo(path);
+                _files.Add(new FileRow(Path.GetFileName(path), path, cases, (fi.Length / 1024.0).ToString("F1"), fi.LastWriteTime));
+                _totalCases += cases;
+            }
+        }
+        _coverage = _api is null ? null : CoverageAnalyzer.Compute(_api, dir, Settings.CurrentTarget);
     }
 
-    private static string AuthIcon(AuthRequirement a) => a switch
+    private string? FileForEndpoint(EndpointSpec ep)
     {
-        AuthRequirement.Anonymous => "🌐",
-        AuthRequirement.Authenticated => "🔑",
-        AuthRequirement.Admin => "👑",
-        _ => "❓"
-    };
+        var name = _renderer.ClassName(ep) + ".cs";
+        var hit = _files.FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.FullPath;
+        if (hit is not null) return hit;
+
+        // login/register покриваються спільним файлом Auth_Tests.cs.
+        var auth = Settings.CurrentTarget.Auth;
+        if (auth is not null && ep.Method == "POST")
+        {
+            static string N(string p) => "/" + p.Trim('/');
+            if (N(ep.Path).Equals(N(auth.LoginPath), StringComparison.OrdinalIgnoreCase) ||
+                N(ep.Path).Equals(N(auth.RegisterPath), StringComparison.OrdinalIgnoreCase))
+                return _files.FirstOrDefault(f => f.Name.Equals("Auth_Tests.cs", StringComparison.OrdinalIgnoreCase))?.FullPath;
+        }
+        return null;
+    }
+
+    private async Task OpenFile(FileRow f)
+    {
+        _viewFile = f; _viewName = f.Name; _viewPath = f.FullPath;
+        _viewMeta = $"{f.Cases} cases · {f.SizeKb} KB · {f.Modified.ToString("dd MMM HH:mm", Uk)}";
+        _viewCode = await File.ReadAllTextAsync(f.FullPath);
+        _viewOpen = true;
+    }
+
+    private async Task OpenEndpoint(EndpointSpec ep)
+    {
+        var path = FileForEndpoint(ep);
+        if (path is not null)
+        {
+            var f = _files.First(x => x.FullPath == path);
+            await OpenFile(f);
+            return;
+        }
+        _viewFile = null; _viewPath = "";
+        _viewName = $"{ep.Method} {ep.Path}";
+        _viewMeta = "тести не згенеровано для цього ендпоінта";
+        _viewCode = "//— не згенеровано —\n// Запусти «Генерувати» або «Повний цикл» на Панелі,\n// щоб створити тести для цього ендпоінта.";
+        _viewOpen = true;
+    }
+
+    private void CloseDrawer() => _viewOpen = false;
+
+    private async Task Download(FileRow f)
+    {
+        var bytes = await File.ReadAllBytesAsync(f.FullPath);
+        await JS.InvokeVoidAsync("qaDownload", f.Name, Convert.ToBase64String(bytes), "text/plain");
+    }
+
+    private async Task DownloadAll()
+    {
+        if (_files.Count == 0) return;
+        using var ms = new MemoryStream();
+        using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+            foreach (var f in _files)
+            {
+                var entry = zip.CreateEntry(f.Name, CompressionLevel.Optimal);
+                await using var es = entry.Open();
+                var bytes = await File.ReadAllBytesAsync(f.FullPath);
+                await es.WriteAsync(bytes);
+            }
+        await JS.InvokeVoidAsync("qaDownload", $"{Settings.TargetName}_tests.zip",
+            Convert.ToBase64String(ms.ToArray()), "application/zip");
+    }
+
+    private async Task Regenerate()
+    {
+        if (_busy) return;
+        _busy = true; StateHasChanged();
+        try
+        {
+            var svc = Settings.CreateService(Paths);
+            var api = await svc.LoadSnapshotAsync();
+            if (api is not null) await svc.GenerateAsync(api, overwrite: true, log: _ => { });
+            await Reload();
+            if (_viewFile is not null)
+            {
+                var again = _files.FirstOrDefault(f => f.Name == _viewName);
+                if (again is not null) await OpenFile(again); else CloseDrawer();
+            }
+        }
+        catch { /* ignore */ }
+        finally { _busy = false; StateHasChanged(); }
+    }
 }

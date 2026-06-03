@@ -113,6 +113,12 @@ public sealed class SelfHealer
         foreach (var file in Directory.GetFiles(_generatedDir, "*.cs"))
         {
             var content = File.ReadAllText(file);
+
+            // НЕ лікуємо security/negative тести: їхнє падіння — це ЗНАХІДКА (вразливість/відсутня
+            // валідація), а не поломка контракту. Інакше LLM міг би послабити асерт і сховати баг.
+            if (content.Contains("[Category(\"security\")]") || content.Contains("[Category(\"negative\")]"))
+                continue;
+
             var matched = failures.Where(f => ContainsMethod(content, f.Name)).ToList();
             if (matched.Count > 0)
                 map[file] = matched;

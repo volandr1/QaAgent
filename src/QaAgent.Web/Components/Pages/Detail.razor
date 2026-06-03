@@ -1,80 +1,97 @@
 @page "/detail/{Target}/{Stamp}"
 @inject WorkspacePaths Paths
 
-<PageTitle>QA-агент · Деталі прогону</PageTitle>
+<PageTitle>QA-агент · Деталі</PageTitle>
 
-<p><a href="history">← Історія</a></p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="file" Size="16" /></span><span>route /detail · @Target</span></div>
+        <h1>@(_report?.ApiTitle ?? "Прогін")</h1>
+        @if (_report is not null) { <p class="sub">@_report.GeneratedAt.ToLocalTime().ToString("dd MMMM yyyy, HH:mm:ss")</p> }
+    </div>
+    @if (_report is not null)
+    {
+        <div><span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span></div>
+    }
+</div>
 
 @if (_report is null)
 {
-    <p class="muted">Прогін не знайдено.</p>
+    <div class="card"><p class="muted">Прогін не знайдено.</p></div>
 }
 else
 {
-    <h1>
-        <span class="badge @(_report.Success ? "pass" : "fail")">@(_report.Success ? "PASS" : "FAIL")</span>
-        @_report.ApiTitle v@_report.ApiVersion
-    </h1>
-    <p class="muted">@Target · @_report.GeneratedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</p>
-
-    @if (_report.TestRun is { } tr)
+    var tr = _report.TestRun;
+    @if (tr is not null)
     {
-        <div class="card">
-            Тести: <b>@tr.Passed/@tr.Total</b> passed · <span class="fail">@tr.Failed failed</span> ·
-            @tr.Skipped skipped · @tr.Duration.TotalSeconds.ToString("F1")s
-        </div>
+        <div class="card" style="margin-bottom:16px"><div style="display:flex;gap:32px">
+            <div class="stat"><span class="v" style="color:var(--pass)">@tr.Passed</span><span class="l">passed</span></div>
+            <div class="stat"><span class="v" style="color:@(tr.Failed>0?"var(--fail)":"var(--text-2)")">@tr.Failed</span><span class="l">failed</span></div>
+            <div class="stat"><span class="v">@tr.Total</span><span class="l">усього</span></div>
+            <div class="stat"><span class="v tnum">@tr.Duration.TotalSeconds.ToString("F1")s</span><span class="l">тривалість</span></div>
+            @if (_report.SelfHealingApplied) { <div class="stat"><span class="v" style="color:var(--ai-2)">@_report.HealedFiles.Count</span><span class="l">healed</span></div> }
+            <div class="stat"><span class="v" style="color:@(_report.BugCount>0?"var(--fail)":"var(--pass)")">@_report.BugCount</span><span class="l">bugs</span></div>
+        </div></div>
     }
 
     @if (!string.IsNullOrWhiteSpace(_report.AiAnalysis))
     {
-        <h2>🧠 AI-аналіз</h2>
-        <div class="card" style="white-space:pre-wrap">@_report.AiAnalysis</div>
+        <div class="card glow" style="margin-bottom:16px">
+            <div class="card-h" style="color:var(--ai-2)"><Icon Name="brain" Size="16" /> AI-аналіз</div>
+            <div style="white-space:pre-wrap;font-size:13.5px">@_report.AiAnalysis</div>
+        </div>
     }
 
     @if (_report.SchemaChanges.Count > 0)
     {
         <h2>Зміни схеми</h2>
-        <ul>@foreach (var s in _report.SchemaChanges) { <li>@s</li> }</ul>
-    }
-
-    @if (_report.SelfHealingApplied)
-    {
-        <h2>Self-healing</h2>
-        <p>🩹 @string.Join(", ", _report.HealedFiles)</p>
+        <div class="card">
+            @foreach (var s in _report.SchemaChanges) { <div class="mono" style="font-size:12.5px;padding:4px 0;color:var(--text-2)">@s</div> }
+        </div>
     }
 
     @if (_report.Findings.Count > 0)
     {
         <h2>Знахідки</h2>
-        <ul>@foreach (var f in _report.Findings) { <li>[@f.Severity] <b>@f.Title</b> — @f.Detail</li> }</ul>
+        @foreach (var f in _report.Findings)
+        {
+            var sev = f.Severity == FindingSeverity.Bug ? "critical" : f.Severity == FindingSeverity.Warning ? "medium" : "low";
+            <div class="finding">
+                <div class="top">
+                    <span class="sev @sev">@sev.ToUpper()</span>
+                    <span class="title">@f.Title</span>
+                </div>
+                <div class="desc">@f.Detail</div>
+            </div>
+        }
     }
 
-    @if (_report.TestRun is { Results.Count: > 0 } run)
+    @if (tr is { Results.Count: > 0 })
     {
-        <h2>Тести (@run.Results.Count)</h2>
-        <table>
-            <thead><tr><th>Тест</th><th>Результат</th><th>Час</th><th>Помилка</th></tr></thead>
-            <tbody>
-            @foreach (var t in run.Results.OrderBy(x => x.Outcome == TestOutcome.Failed ? 0 : 1).ThenBy(x => x.Name))
-            {
-                <tr>
-                    <td>@t.Name</td>
-                    <td><span class="badge @(t.Outcome == TestOutcome.Passed ? "pass" : t.Outcome == TestOutcome.Failed ? "fail" : "run")">@t.Outcome</span></td>
-                    <td>@t.Duration.TotalMilliseconds.ToString("F0") ms</td>
-                    <td style="max-width:520px"><span class="muted">@(t.ErrorMessage?.Trim())</span></td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        <h2>Тести (@tr.Results.Count)</h2>
+        <div class="card" style="padding:0;overflow:hidden">
+            <table>
+                <thead><tr><th>Тест</th><th>Результат</th><th>Час</th><th>Помилка</th></tr></thead>
+                <tbody>
+                @foreach (var t in tr.Results.OrderBy(x => x.Outcome == TestOutcome.Failed ? 0 : 1).ThenBy(x => x.Name))
+                {
+                    <tr>
+                        <td class="mono" style="font-size:12.5px">@t.Name</td>
+                        <td><span class="badge @(t.Outcome == TestOutcome.Passed ? "pass" : t.Outcome == TestOutcome.Failed ? "fail" : "idle")">@t.Outcome.ToString().ToUpper()</span></td>
+                        <td class="mono tnum" style="color:var(--text-2)">@t.Duration.TotalMilliseconds.ToString("F0")ms</td>
+                        <td style="max-width:460px"><span class="muted" style="font-size:12px">@(t.ErrorMessage?.Trim())</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     }
 }
 
 @code {
     [Parameter] public string Target { get; set; } = "";
     [Parameter] public string Stamp { get; set; } = "";
-
     private RunReport? _report;
 
-    protected override void OnInitialized() =>
-        _report = ReportStore.Load(Paths.ReportsFor(Target), Stamp);
+    protected override void OnInitialized() => _report = ReportStore.Load(Paths.ReportsFor(Target), Stamp);
 }

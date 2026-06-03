@@ -3,46 +3,63 @@
 
 <PageTitle>QA-агент · Налаштування</PageTitle>
 
-<h1>Налаштування</h1>
-<p class="muted">Зберігаються в памʼяті застосунку. Telegram-поля застосовуються як env для звітів.</p>
+<div class="page-head">
+    <div>
+        <div class="kicker"><span class="ic"><Icon Name="gear" Size="16" /></span><span>route /settings</span></div>
+        <h1>Налаштування</h1>
+        <p class="sub">Конфігурація агента, моделі та сповіщень. Зміни зберігаються локально й переживають перезапуск.</p>
+    </div>
+    <div>@if (_saved) { <span class="badge pass">збережено локально</span> }</div>
+</div>
 
-<div class="card" style="max-width:680px">
-    <label>Таргет (API)</label>
-    <select @bind="Cfg.TargetName">
-        @foreach (var t in Cfg.Targets)
-        {
-            <option value="@t.Name">@t.Name — @t.SwaggerUrl</option>
-        }
-    </select>
-
-    <label>Модель Ollama</label>
-    <input type="text" @bind="Cfg.OllamaModel" />
-    <span class="muted">напр. deepseek-coder-v2:latest або qwen2.5-coder:7b</span>
-
-    <label>Ollama endpoint</label>
-    <input type="text" @bind="Cfg.OllamaEndpoint" />
-
-    <label>Telegram bot token</label>
-    <input type="text" @bind="Cfg.TelegramToken" placeholder="не зберігається в репозиторії" />
-
-    <label>Telegram chat id</label>
-    <input type="text" @bind="Cfg.TelegramChatId" />
-
-    <div class="btnrow">
-        <button class="primary" @onclick="Save">Зберегти</button>
-        @if (_saved)
-        {
-            <span class="badge pass">збережено ✓</span>
-        }
+<div class="card" style="margin-bottom:16px">
+    <div class="section-head">
+        <span class="section-icon"><Icon Name="nodes" Size="18" /></span>
+        <div><div class="h">Ціль</div><div class="s">API за замовчуванням для нових прогонів.</div></div>
+    </div>
+    <div class="field">
+        <div class="lbl">Активний таргет<div class="d">Використовується при запуску циклу</div></div>
+        <div class="ctrl">
+            <select @bind="Cfg.TargetName">
+                @foreach (var t in Cfg.Targets) { <option value="@t.Name">@t.Name</option> }
+            </select>
+        </div>
     </div>
 </div>
 
+<div class="card" style="margin-bottom:16px">
+    <div class="section-head">
+        <span class="section-icon"><Icon Name="brain" Size="18" /></span>
+        <div><div class="h">AI-модель</div><div class="s">Локальна Ollama-модель для аналізу та генерації.</div></div>
+    </div>
+    <div class="field">
+        <div class="lbl">Ollama model<div class="d">як у `ollama list`</div></div>
+        <div class="ctrl"><input type="text" @bind="Cfg.OllamaModel" /></div>
+    </div>
+    <div class="field">
+        <div class="lbl">Endpoint<div class="d">Адреса локального Ollama-сервера</div></div>
+        <div class="ctrl"><input type="text" @bind="Cfg.OllamaEndpoint" /></div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+    <div class="section-head">
+        <span class="section-icon"><Icon Name="bell" Size="18" /></span>
+        <div><div class="h">Telegram-сповіщення</div><div class="s">Алерти про падіння тестів і нові баги. Значення приховані.</div></div>
+    </div>
+    <div class="field">
+        <div class="lbl">Bot token</div>
+        <div class="ctrl"><input type="password" autocomplete="new-password" @bind="Cfg.TelegramToken" placeholder="••••••••••••" /></div>
+    </div>
+    <div class="field">
+        <div class="lbl">Chat id</div>
+        <div class="ctrl"><input type="password" autocomplete="new-password" @bind="Cfg.TelegramChatId" placeholder="••••••••" /></div>
+    </div>
+</div>
+
+<div class="btnrow"><button class="btn primary" @onclick="Save"><Icon Name="check" Size="15" /> Зберегти</button></div>
+
 @code {
     private bool _saved;
-
-    private void Save()
-    {
-        Cfg.ApplyEnv();
-        _saved = true;
-    }
+    private void Save() { Cfg.ApplyEnv(); Cfg.Save(); _saved = true; }
 }
